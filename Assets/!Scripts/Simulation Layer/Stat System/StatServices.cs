@@ -46,7 +46,7 @@ public static class StatServices
         sc.AddStatChanges(new List<StatChange>()
         {
             new StatChange("strength", StatChangeTypeEnum.PLUS, 25),
-            new StatChange("strength", StatChangeTypeEnum.INCREASED, 0.25f),
+            new StatChange("strength", StatChangeTypeEnum.INCREASED, 25f),
         });
 
         Debug.Log("Added stat changes.");

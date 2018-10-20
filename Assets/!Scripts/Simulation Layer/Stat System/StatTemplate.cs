@@ -50,7 +50,7 @@ public class Stat
         float precision = template.Precision.Enabled ? template.Precision.Value : 1;
 
         //round to nearest precision level
-        originalValue = Mathf.Round(originalValue / template.Precision.Value) * template.Precision.Value;
+        originalValue = Mathf.Round(originalValue / precision) * precision;
 
         //raise to minimum
         if (template.MinValue.Enabled)

@@ -43,8 +43,10 @@ public class Mod : IMod
             if (!StatChangeType.TryGet(changeTemplate.ChangeType, out changeType))
                 continue;
 
-            effectsTemplate.Add(changeType.GetFormattedValueString(changeTemplate.MinValue, changeTemplate.MaxValue) + " " + _template.StatChanges[i].StatInternalName);
-            effectsRolled.Add(changeType.GetFormattedValueString(_rolledChanges[i].Value) + " " + _template.StatChanges[i].StatInternalName);
+            string affectedStatExternalName = _template.StatChanges[i].affectedStat.ExternalName;
+
+            effectsTemplate.Add(changeType.GetFormattedValueString(changeTemplate.MinValue, changeTemplate.MaxValue, affectedStatExternalName));
+            effectsRolled.Add(changeType.GetFormattedValueString(_rolledChanges[i].Value, affectedStatExternalName));
         }
 
         for (int i = 0; i < _template.Flags.Count; i++)

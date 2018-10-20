@@ -9,6 +9,7 @@ public class ModTemplate : ScriptableObject
 
     public string NameExternal;
     public AffixSlotEnum AffixSlot;
+    public bool Hidden;
     public List<StatChangeTemplate> StatChanges;
     public List<string> Flags;
 }
