@@ -21,14 +21,17 @@ public class Game : MonoBehaviour
         {
             Debug.LogError("error");
         }
-
-        ModServices.TestModSystem(TestBoss);
+        if (!StatServices.LoadStatDBs())
+        {
+            Debug.LogError("error");
+        }
     }
     // Use this for initialization
     void Start ()
     {
-		
-	}
+        //ModServices.TestModSystem(TestBoss);
+        StatServices.TestStatSystem(TestBoss);
+    }
 	
 	// Update is called once per frame
 	void Update ()

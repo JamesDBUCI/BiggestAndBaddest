@@ -8,8 +8,6 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
 {
     //Helper class for managing and querying collections of ScriptableObjects (i.e. ModTemplates)
 
-    public static readonly string RESOURCES_DIRECTORY_PATH = Application.dataPath + "/Resources/";  //it's like a const, but not
-
     protected Dictionary<string, DBType> _database = new Dictionary<string, DBType>();      //actual database of assets
     protected readonly string _path;           //where below the resources folder are these assets located?
     protected readonly string _assetTypeName;  //for debug log, what kind of assets are these?
@@ -29,7 +27,7 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
         //call this during game initialization
 
         //resource path
-        var targetPath = RESOURCES_DIRECTORY_PATH + _path;
+        var targetPath = Application.dataPath + "/Resources/" + _path;
 
         //check to see if directory even exists
         if (!Directory.Exists(targetPath))
@@ -63,6 +61,8 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
     {
         if (_database.TryGetValue(identifierString.ToUpper(), out foundAsset))
             return true;
+
+        Debug.LogError("Database Error: Unable to locate asset with internal name: " + identifierString);
         return false;
     }
     public bool TryFindMany(System.Predicate<DBType> predicate, out List<DBType> foundAssets)
@@ -144,5 +144,9 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
 
         //return false because there were no values to select from
         return false;
+    }
+    public List<DBType> GetAllAssets()
+    {
+        return _database.Values.ToList();
     }
 }

@@ -10,7 +10,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace>
     </RootNamespace>
-    <ProjectGuid>{64FE2447-0255-793C-5F90-342B5ED93F97}</ProjectGuid>
+    <ProjectGuid>{67EBC415-F7DB-5473-0C1A-888369E83FF6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -70,18 +70,21 @@
     <Compile Include="Assets\!Scripts\Simulation Layer\ARPG Mods\ModController.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\ARPG Mods\ModServices.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\ARPG Mods\ModTemplate.cs" />
-    <Compile Include="Assets\!Scripts\Simulation Layer\ARPG Mods\StatChange.cs" />
-    <Compile Include="Assets\!Scripts\Simulation Layer\ARPG Mods\StatChangeType.cs" />
-    <Compile Include="Assets\!Scripts\Simulation Layer\ARPG Mods\StatFlag.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Boundary.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\CombatManager.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Game.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\GameMath.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\Action.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\Choice.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\Condition.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\State.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\StateManager.cs" />
-    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\Stat.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatChange.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatChangeType.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatController.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatFlag.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatServices.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatTemplate.cs" />
     <Compile Include="Assets\!Scripts\Tools\DatabaseHelper.cs" />
     <Compile Include="Assets\!Scripts\Tools\KEditorTools.cs" />
     <Compile Include="Assets\!Scripts\Tools\KTools.cs" />
@@ -89,16 +92,16 @@
     <Compile Include="Assets\!Scripts\Tools\OptionalInt.cs" />
     <Compile Include="Assets\!Scripts\Tools\Xuple.cs" />
     <Reference Include="UnityEditor.StandardEvents">
-      <HintPath>C:/Users/Kodakami/Desktop/Unity Stuff/BBD/BiggestANDBaddest/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
+      <HintPath>C:/Users/Kodakami/Documents/GitHub/BiggestAndBaddest/BiggestAndBaddest/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>C:/Users/Kodakami/Desktop/Unity Stuff/BBD/BiggestANDBaddest/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>C:/Users/Kodakami/Documents/GitHub/BiggestAndBaddest/BiggestAndBaddest/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.PackageManagerUI.Editor">
-      <HintPath>C:/Users/Kodakami/Desktop/Unity Stuff/BBD/BiggestANDBaddest/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+      <HintPath>C:/Users/Kodakami/Documents/GitHub/BiggestAndBaddest/BiggestAndBaddest/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>C:/Users/Kodakami/Desktop/Unity Stuff/BBD/BiggestANDBaddest/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>C:/Users/Kodakami/Documents/GitHub/BiggestAndBaddest/BiggestAndBaddest/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>

@@ -43,8 +43,8 @@ public class Mod : IMod
             if (!StatChangeType.TryGet(changeTemplate.ChangeType, out changeType))
                 continue;
 
-            effectsTemplate.Add(changeType.GetFormattedValueString(changeTemplate.MinValue, changeTemplate.MaxValue) + " " + _template.StatChanges[i].StatName);
-            effectsRolled.Add(changeType.GetFormattedValueString(_rolledChanges[i].Value) + " " + _template.StatChanges[i].StatName);
+            effectsTemplate.Add(changeType.GetFormattedValueString(changeTemplate.MinValue, changeTemplate.MaxValue) + " " + _template.StatChanges[i].StatInternalName);
+            effectsRolled.Add(changeType.GetFormattedValueString(_rolledChanges[i].Value) + " " + _template.StatChanges[i].StatInternalName);
         }
 
         for (int i = 0; i < _template.Flags.Count; i++)
