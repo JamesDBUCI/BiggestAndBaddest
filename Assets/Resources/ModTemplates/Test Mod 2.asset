@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d78fdd94c4ded54b814e4defcbdc40c, type: 3}
+  m_Name: Test Mod 2
+  m_EditorClassIdentifier: 
+  NameExternal: of Testing
+  AffixSlot: 1
+  StatChanges:
+  - StatName: Testosterone
+    ChangeType: 1
+    MinValue: 5
+    MaxValue: 15
+    Precision: 5
+  - StatName: Testamina
+    ChangeType: 2
+    MinValue: -2
+    MaxValue: -14
+    Precision: 2
+  Flags:
+  - Cooling Strike
