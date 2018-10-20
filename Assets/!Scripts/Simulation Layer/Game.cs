@@ -29,8 +29,8 @@ public class Game : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
-        //ModServices.TestModSystem(TestBoss);
-        StatServices.TestStatSystem(TestBoss);
+        ModServices.TestModSystem(TestBoss);
+        //StatServices.TestStatSystem(TestBoss);
     }
 	
 	// Update is called once per frame

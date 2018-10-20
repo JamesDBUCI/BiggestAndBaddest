@@ -15,14 +15,16 @@ MonoBehaviour:
   AffixSlot: 0
   Hidden: 0
   StatChanges:
-  - affectedStat: {fileID: 11400000, guid: ae9146534908a7741a0a57d8cc8a53b5, type: 2}
+  - AffectedStat: {fileID: 11400000, guid: ae9146534908a7741a0a57d8cc8a53b5, type: 2}
     ChangeType: 0
     MinValue: 5
     MaxValue: 10
     Precision: 1
-  - affectedStat: {fileID: 11400000, guid: ae9146534908a7741a0a57d8cc8a53b5, type: 2}
+  - AffectedStat: {fileID: 11400000, guid: ae9146534908a7741a0a57d8cc8a53b5, type: 2}
     ChangeType: 2
     MinValue: 25
     MaxValue: 35
     Precision: 1
-  Flags: []
+  Flags:
+  - {fileID: 11400000, guid: ce6623c93ed8e904e9cb78bc99580fcf, type: 2}
+  ModIsDisabled: 0

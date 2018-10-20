@@ -23,5 +23,5 @@ MonoBehaviour:
   Precision:
     Value: 1
     Enabled: 0
-  Color: {r: 0.8867924, g: 0.16313636, b: 0.16313636, a: 0}
+  Color: {r: 0.8867924, g: 0.16313636, b: 0.16313636, a: 1}
   Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
