@@ -9,20 +9,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d78fdd94c4ded54b814e4defcbdc40c, type: 3}
-  m_Name: Test Mod 2
+  m_Name: Test2
   m_EditorClassIdentifier: 
-  NameExternal: of Testing
+  NameExternal: of the Whale
   AffixSlot: 1
+  Hidden: 0
   StatChanges:
-  - StatName: Testosterone
+  - AffectedStat: {fileID: 11400000, guid: 03aeffacc21a99d4c972e7c9b3e36aaf, type: 2}
     ChangeType: 1
-    MinValue: 5
-    MaxValue: 15
-    Precision: 5
-  - StatName: Testamina
-    ChangeType: 2
-    MinValue: -2
-    MaxValue: -14
+    MinValue: 10
+    MaxValue: 20
     Precision: 2
   Flags:
-  - Cooling Strike
+  - {fileID: 11400000, guid: d2a11980b8610b241b8bb66580d895b8, type: 2}
+  ModIsDisabled: 0

@@ -3,9 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public abstract class Actor : MonoBehaviour
+public abstract class Actor : MonoBehaviour, IModdable, IHaveStats
 {
+    protected ModController _modController = new ModController();
+    public ModController GetModController()
+    {
+        return _modController;
+    }
+
     public CombatManager CombatManager;
+    public StatController GetStatController()
+    {
+        return CombatManager.GetStatController();
+    }
 
     protected Rigidbody2D rb;
 

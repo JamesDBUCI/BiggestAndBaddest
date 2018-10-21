@@ -9,7 +9,7 @@ public interface IMod
     ModDescription GetDescription();
     AffixSlotEnum GetAffixSlot();
     StatChange[] GetStatChanges(StatChangeTypeEnum ofType);
-    string[] GetFlags();
+    StatFlag[] GetFlags();
 }
 
 public class Mod : IMod
@@ -43,22 +43,24 @@ public class Mod : IMod
             if (!StatChangeType.TryGet(changeTemplate.ChangeType, out changeType))
                 continue;
 
-            effectsTemplate.Add(changeType.GetFormattedValueString(changeTemplate.MinValue, changeTemplate.MaxValue) + " " + _template.StatChanges[i].StatName);
-            effectsRolled.Add(changeType.GetFormattedValueString(_rolledChanges[i].Value) + " " + _template.StatChanges[i].StatName);
+            string affectedStatExternalName = _template.StatChanges[i].AffectedStat.ExternalName;
+
+            effectsTemplate.Add(changeType.GetFormattedValueString(changeTemplate.MinValue, changeTemplate.MaxValue, affectedStatExternalName));
+            effectsRolled.Add(changeType.GetFormattedValueString(_rolledChanges[i].Value, affectedStatExternalName));
         }
 
         for (int i = 0; i < _template.Flags.Count; i++)
         {
             //add all flag descriptions (later, maybe have separate internal and external descriptions)
-            effectsRolled.Add(_template.Flags[i]);
-            effectsTemplate.Add(_template.Flags[i]);
+            effectsRolled.Add(_template.Flags[i].ExternalName);
+            effectsTemplate.Add(_template.Flags[i].ExternalName);
         }
 
         //return the effect descriptions
         return new ModDescription(_template.NameExternal, _template.AffixSlot.ToString(), effectsTemplate, effectsRolled);
     }
 
-    public string[] GetFlags()
+    public StatFlag[] GetFlags()
     {
         return _template.Flags.ToArray();
     }
