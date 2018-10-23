@@ -5,6 +5,8 @@ using UnityEngine;
 
 public static class StatServices
 {
+    public const float MAX_RESISTANCE_STAT_VALUE = 75;
+
     public static DatabaseHelper<StatTemplate> StatTemplateDB = new DatabaseHelper<StatTemplate>("Stats", "Combat Stat");
     public static DatabaseHelper<StatFlag> StatFlagDB = new DatabaseHelper<StatFlag>("Flags", "Stat Flag");
 

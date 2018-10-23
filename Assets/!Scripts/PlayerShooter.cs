@@ -2,47 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(Actor))]
 public class PlayerShooter : MonoBehaviour
 {
-    public Boss Target;
-
-    public float FireRate;
-    public float Damage;
-    public AudioClip SE;
-
-    private AudioSource audioSource;
-
-    private float lastFired;
+    Actor _parentActor;
 
     private void OnEnable()
     {
-        audioSource = GetComponent<AudioSource>();
+        _parentActor = GetComponent<Actor>();
     }
-	
-	// Update is called once per frame
-	void FixedUpdate ()
+
+    private void Update()
     {
-		if (Input.GetButton("Fire1"))
+        //rotate projectile Transform
+        Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        _parentActor.GetProjectileTransform().rotation = Quaternion.LookRotation(worldMousePos - transform.position, Vector3.forward);
+
+        //replaced later with the many input commands that can happen
+
+        if (Input.GetButton("Fire1"))
         {
-            TryShoot();
+            _parentActor.GetCombatController().GetCurrentAttackType().TryAttack(_parentActor);
         }
 	}
-    private bool TryShoot()
-    {
-        if (Time.time > lastFired + FireRate)
-        {
-            Shoot();
-            lastFired = Time.time;
-            return true;
-        }
-        return false;
-    }
-    private void Shoot()
-    {
-        audioSource.PlayOneShot(SE);
-
-        if (!Target.CombatManager.IsDead())
-            Target.CombatManager.ChangeHP(-Damage);
-    }
 }

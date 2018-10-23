@@ -52,4 +52,23 @@ public static class GameMath
         //don't forget your game math magic multiplier! (a 75% increase is written as 75 in-editor, but used value is actually 0.75)
         return foundType.ChangeFunc(originalValue, totalDelta * foundType.GameMathMagicMultiplier);
     }
+    public static float CalculateOutgoingDamage(ICombatant combatant, List<StatScaler> statScaling)
+    {
+        float outgoingDamage = 0;
+        foreach (StatScaler scaledStat in statScaling)
+        {
+            float currentStatValue = combatant.GetCombatController().
+                GetStatController().CalculateCurrentStatValue(scaledStat.Stat);
+
+            outgoingDamage += currentStatValue * scaledStat.Scale;
+        }
+        return outgoingDamage;
+    }
+    public static float CalculateDamageAfterResistance(float incomingDamage, float resistanceStatValue)
+    {
+        //assuming 75 resist is 75% resistance
+        //negative resistance will add more damage
+        //more than max resistance will be capped at max
+        return incomingDamage * (1 - Mathf.Min(resistanceStatValue, StatServices.MAX_RESISTANCE_STAT_VALUE)/ 100);
+    }
 }

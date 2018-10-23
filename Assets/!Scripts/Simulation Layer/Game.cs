@@ -8,8 +8,8 @@ public class Game : MonoBehaviour
 
     public bool IsPaused { get; private set; }
 
-    public Boss TestBoss;
-    public GameObject Player;
+    public Actor TestBoss;
+    public Actor Player;
     public Boundary PlayableArea;
 
     private void OnEnable()
@@ -25,11 +25,29 @@ public class Game : MonoBehaviour
         {
             Debug.LogError("error");
         }
+        if (!CombatServices.LoadAttackTypeDB())
+        {
+            Debug.LogError("error");
+        }
     }
     // Use this for initialization
     void Start ()
     {
-        ModServices.TestModSystem(TestBoss);
+        Player.GetCombatController().Init();
+
+        StatTemplate phys;
+        StatServices.StatTemplateDB.TryFind("physical might", out phys);
+
+        Player.GetCombatController().GetStatController().ChangeBaseStat(phys, 25);
+
+        TestBoss.GetCombatController().Init();
+
+        StatTemplate pRes;
+        StatServices.StatTemplateDB.TryFind("Piercing Resistance", out pRes);
+
+        TestBoss.GetCombatController().GetStatController().ChangeBaseStat(pRes, 10);
+
+        //ModServices.TestModSystem(TestBoss);
         //StatServices.TestStatSystem(TestBoss);
     }
 	
