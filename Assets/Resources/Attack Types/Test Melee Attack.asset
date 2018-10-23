@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79efaccef748da841a3d817d29093344, type: 3}
+  m_Name: Test Melee Attack
+  m_EditorClassIdentifier: 
+  ExternalName: Basic Melee Strike
+  AttackRate: 0.5
+  StatScaling:
+  - Stat: {fileID: 11400000, guid: c0b49effc809b0840affe104392c91ea, type: 2}
+    Scale: 1
+  DamagePotency:
+  - Value: 100
+    Types:
+    - {fileID: 11400000, guid: c984a954ccefa8c45b9c72f811649fb4, type: 2}
+  Effects: 00000000
+  Range: 1
+  TargetCount: 1

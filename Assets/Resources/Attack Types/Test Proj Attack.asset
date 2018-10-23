@@ -23,5 +23,6 @@ MonoBehaviour:
   - Value: 70
     Types:
     - {fileID: 11400000, guid: c984a954ccefa8c45b9c72f811649fb4, type: 2}
+  Effects: 00000000
   ProjectilePrefab: {fileID: 114806433015713618, guid: fc1cf1adbd6df9044af3345dade5a6bd,
     type: 2}
