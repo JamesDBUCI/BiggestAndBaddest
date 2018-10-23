@@ -8,8 +8,7 @@ public class PlayerMover : MonoBehaviour
 
     Rigidbody2D rb;
 
-	// Use this for initialization
-	void Start ()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
 	}
@@ -17,6 +16,7 @@ public class PlayerMover : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
     {
+        //move
         var v = Input.GetAxisRaw("Vertical");
         var h = Input.GetAxisRaw("Horizontal");
 
@@ -25,6 +25,7 @@ public class PlayerMover : MonoBehaviour
             rb.AddForce(new Vector3(h, v).normalized * speed * Time.fixedDeltaTime, ForceMode2D.Impulse);
         }
 
+        //stay
         Boundary gameBounds = Game.Self.PlayableArea;
         if (!gameBounds.Contains(rb.position))
         {

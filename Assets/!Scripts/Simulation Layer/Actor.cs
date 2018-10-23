@@ -3,25 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public abstract class Actor : MonoBehaviour, IModdable, IHaveStats
+public class Actor : MonoBehaviour, IModdable, ICombatant
 {
+    public Transform ProjectileTransform;
+    public Transform GetProjectileTransform()
+    {
+        return ProjectileTransform;
+    }
+
+    public AttackType CurrentAttackType;
+
     protected ModController _modController = new ModController();
     public ModController GetModController()
     {
         return _modController;
     }
 
-    public CombatManager CombatManager;
+    public CombatController _combatController;
+    public CombatController GetCombatController()
+    {
+        return _combatController;
+    }
     public StatController GetStatController()
     {
-        return CombatManager.GetStatController();
+        return _combatController.GetStatController();
     }
 
     protected Rigidbody2D rb;
 
     protected void OnEnable()
     {
-        CombatManager = new CombatManager(this);
+        _combatController = new CombatController(this);
         rb = GetComponent<Rigidbody2D>();
     }
     public Vector2 GetPosition()
