@@ -22,7 +22,16 @@ public class PlayerShooter : MonoBehaviour
 
         if (Input.GetButton("Fire1"))
         {
-            _parentActor.GetCombatController().GetCurrentAttackType().TryAttack(_parentActor);
+            //returns true if the attack was made, false if it wasn't (due to cooldown)
+            //returns a List of combatants hit as an out parameter
+
+            AttackType currentAttack = _parentActor.GetCombatController().GetCurrentAttackType();
+
+            List<ICombatant> combatantsHit;
+            if (currentAttack.TryAttack(_parentActor, out combatantsHit))
+            {
+                currentAttack.ApplyAttackEffects(_parentActor, combatantsHit);
+            }
         }
 	}
 }

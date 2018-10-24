@@ -5,7 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class ProjectileController : MonoBehaviour
 {
-    public DamagePacket Damage;
+    public DamagePacket Damage;                 //damage should be calculated and set when fired
+    public AttackType OriginalAttackType;       //process these effects at time of impact
 
     public float Speed;
 
@@ -24,8 +25,8 @@ public class ProjectileController : MonoBehaviour
         if (hitCombatant == null || collision.gameObject.CompareTag("Player"))
             return;
 
-        //Debug.Log("Hit Enemy");
-        CombatServices.TakeDamagePacket(hitCombatant, Damage);
+        //Debug.Log("Hit Combatant");
+        OriginalAttackType.ApplyAttackEffects(Damage, new List<ICombatant>() { hitCombatant });
 
         Destroy(gameObject);    //this one
     }

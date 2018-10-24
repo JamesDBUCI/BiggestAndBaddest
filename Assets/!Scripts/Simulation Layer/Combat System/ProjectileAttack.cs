@@ -13,11 +13,10 @@ public class ProjectileAttack : AttackType
         Transform projTrans = combatant.GetProjectileTransform();
         ProjectileController pc = Instantiate(ProjectilePrefab.gameObject, projTrans.position, projTrans.rotation).GetComponent<ProjectileController>();
         pc.Damage = GetDamagePacket(combatant);
+        pc.OriginalAttackType = this;
 
         return new List<ICombatant>();
     }
-
-    
 }
 [CustomEditor(typeof(ProjectileAttack))]
 public class Insp_ProjectileAttack : Insp_AttackType
