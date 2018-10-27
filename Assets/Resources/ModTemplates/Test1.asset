@@ -15,12 +15,12 @@ MonoBehaviour:
   AffixSlot: 0
   Hidden: 0
   StatChanges:
-  - AffectedStat: {fileID: 11400000, guid: ae9146534908a7741a0a57d8cc8a53b5, type: 2}
+  - AffectedStat: {fileID: 11400000, guid: acb988d68da2e6140b0540a1159f5b24, type: 2}
     ChangeType: 0
     MinValue: 5
     MaxValue: 10
     Precision: 1
-  - AffectedStat: {fileID: 11400000, guid: ae9146534908a7741a0a57d8cc8a53b5, type: 2}
+  - AffectedStat: {fileID: 11400000, guid: c0b49effc809b0840affe104392c91ea, type: 2}
     ChangeType: 2
     MinValue: 25
     MaxValue: 35

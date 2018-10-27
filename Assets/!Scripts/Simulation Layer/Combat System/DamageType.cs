@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CreateAssetMenu(menuName = "Combat System/New Damage Type")]
+[CreateAssetMenu(menuName = "Damage Type")]
 public class DamageType : ScriptableObject
 {
     public string ExternalName;

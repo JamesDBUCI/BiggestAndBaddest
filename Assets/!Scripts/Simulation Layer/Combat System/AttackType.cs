@@ -3,119 +3,104 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public abstract class AttackType : ScriptableObject
+public enum AttackTypeEnum
 {
-    //prescribes the data needed for a player to attack in a particular way
-
-    //aoe from origin
-    //projectile
-
-    public string ExternalName;
-    public float AttackRate = 0.3f;     //to be improved later
-    //public GameObject Graphics;   //particle or graphical effect object (later)
-
-    public List<StatScaler> StatScaling = new List<StatScaler>();   //amount by which stats are factored when calculating damage for this attack (0.5 = half the stat value)
-    public List<DamageWithType> DamagePotency = new List<DamageWithType>();
-    public List<AttackEffectEnum> Effects = new List<AttackEffectEnum>();
-
-    public virtual bool TryAttack(ICombatant combatant, out List<ICombatant> combatantsHit)
+    MELEE, PROJECTILE
+}
+public delegate void AttackTypeDelegate(Actor origin, SkillController skillController);
+public sealed class AttackType
+{
+    private static List<AttackType> _all = new List<AttackType>();
+    public static bool TryGet(AttackTypeEnum enumValue, out AttackType foundAttackType)
     {
-        //attack timing control. this is temporary
-
-        combatantsHit = null;
-
-        //handle
-        CombatController cc = combatant.GetCombatController();
-
-        if (Time.time < cc.LastAttackTimestamp + AttackRate)
-            return false;
-
-        combatantsHit = Attack(combatant);
-
-        cc.LastAttackTimestamp = Time.time;
-        return true;
-    }
-
-    protected virtual DamagePacket GetDamagePacket(ICombatant combatant)
-    {
-        return CombatServices.ConstructDamagePacket(combatant, this);
-    }
-    protected abstract List<ICombatant> Attack(ICombatant combatant);       //return list of affected combatants, including allies, for instant-speed attacks
-    protected List<AttackEffectDelegate> GetAttackEffects()
-    {
-        //can be overridden for whatever reason
-        List<AttackEffectDelegate> effectDelegates = new List<AttackEffectDelegate>();
-        foreach (AttackEffectEnum enumValue in Effects)
+        foundAttackType = _all.Find(at => at.EnumValue == enumValue);
+        if (foundAttackType != null)
         {
-            AttackEffectDelegate del;
-            if (!AttackEffect.TryGet(enumValue, out del))
+            return true;
+        }
+        Debug.LogError("Unable to locate AttackType with enum value: " + enumValue);
+        return false;
+    }
+
+    //static instances
+    public static readonly AttackType Melee = new AttackType(AttackTypeEnum.MELEE, MeleeAttack_Method);
+    public static readonly AttackType Projectile = new AttackType(AttackTypeEnum.PROJECTILE, ProjectileAttack_Method);
+
+    //attack type delegate methods
+    public static void MeleeAttack_Method(Actor origin, SkillController skillController)
+    {
+        MeleeSkill skill = skillController.Skill as MeleeSkill;
+
+        //draw a raycast with provided max range and return the enemies hit.
+
+        //handles
+        Transform projTrans = origin.AimTransform;
+
+        //get all objects hit by the raycast (it's usually a small ray, so we'll have 0~1 hits much of the time)
+        RaycastHit2D[] hits = Physics2D.RaycastAll(projTrans.transform.position, projTrans.up, skill.MeleeRange);
+
+        //debug ray
+        Debug.DrawRay(projTrans.transform.position, projTrans.up * skill.MeleeRange, Color.green, skill.SkillLockInfo.SkillLockDuration);
+
+        //if there were no hits for some reason, just leave right here;
+        if (hits == null)
+            return;
+
+        //make a list of the objects hit
+        List<RaycastHit2D> hitsList = new List<RaycastHit2D>(hits);
+
+        //make an empty list for the ICombatants (Actors) we're going to hit
+        List<Actor> combatantsHit = new List<Actor>();
+
+        //iterate the list of raycast hits
+        foreach (RaycastHit2D hit in hitsList)
+        {
+            //try to get an Actor component off the object hit
+            Actor actorComponent = hit.transform.gameObject.GetComponent<Actor>();
+
+            //if there wasn't one, it wasn't an ICombatant, so we're not able to do damage to it (next hit object, please)
+            if (actorComponent == null)
                 continue;
 
-            effectDelegates.Add(del);
+            //stop hitting yourself
+            if (actorComponent == origin as Actor)
+                continue;
+
+            //if we got here, it was an actor and we're gonna say we hit it (enemies or allies)
+            combatantsHit.Add(actorComponent);
+
+            //if we've maxed out the number of targets this attack can hit, we stop checking hits
+            int maxTargetsActual = 1;       //change if we're going to dynamically add more targets to skills
+            if (combatantsHit.Count == maxTargetsActual)
+                break;
         }
-        return effectDelegates;
+
+        //we hit them
+        skillController.ApplyAttackEffects(SkillPhaseTimingEnum.ON_MAIN_HIT, combatantsHit);
     }
-    public virtual void ApplyAttackEffects(ICombatant origin, List<ICombatant> targets)
+    public static void ProjectileAttack_Method(Actor origin, SkillController skillController)
     {
-        //use this overload if damage is calculated at time of impact
-        ApplyAttackEffects(GetDamagePacket(origin), targets);
-    }
-    public virtual void ApplyAttackEffects(DamagePacket damagePacket, List<ICombatant> targets)
+        ProjectileSkill skill = skillController.Skill as ProjectileSkill;
+
+        if (skill.ProjectilePrefab == null)
+            return;
+
+        Transform projTrans = origin.AimTransform;
+        ProjectileController pc = Object.Instantiate(skill.ProjectilePrefab.gameObject, projTrans.position, projTrans.rotation).GetComponent<ProjectileController>();
+        pc.Arm(skillController, origin.CombatController.Stats.CalculateCurrentStatValues());    //inject current stat values
+
+        //we don't hit them yet. we wait.
+    }  
+
+    //instance fields
+    public AttackTypeEnum EnumValue;
+    public AttackTypeDelegate DelegateValue;
+
+    public AttackType(AttackTypeEnum enumValue, AttackTypeDelegate delegateValue)
     {
-        //use this overload if damage was already calculated (projectiles, etc...)
-        if (targets.Count > 0)
-        {
-            foreach (AttackEffectDelegate effect in GetAttackEffects())
-            {
-                effect(damagePacket, targets);
-            }
-        }
+        EnumValue = enumValue;
+        DelegateValue = delegateValue;
+
+        _all.Add(this);
     }
-}
-
-//[CustomEditor(typeof(AttackType))]
-public abstract class Insp_AttackType : Editor
-{
-    SerializedProperty nameProp;
-    SerializedProperty rateProp;
-    SerializedProperty scaleListProp;
-    SerializedProperty damageListProp;
-    SerializedProperty effectsListProp;
-
-    protected virtual void OnEnable()
-    {
-        nameProp = serializedObject.FindProperty("ExternalName");
-        rateProp = serializedObject.FindProperty("AttackRate");
-        scaleListProp = serializedObject.FindProperty("StatScaling");
-        damageListProp = serializedObject.FindProperty("DamagePotency");
-        effectsListProp = serializedObject.FindProperty("Effects");
-    }
-
-    public override void OnInspectorGUI()
-    {
-        //base.OnInspectorGUI();
-        serializedObject.Update();
-
-        SectionHeading("Generic AttackType data");
-
-        EditorGUILayout.PropertyField(nameProp);
-        EditorGUILayout.PropertyField(rateProp);
-        KEditorTools.ListBig(scaleListProp, new GUIContent("Scaled Stats", "List of all stats this attack scales on and by how much."), "Scaled Stat", false);
-        KEditorTools.ListBig(damageListProp, new GUIContent("Damage Potency", "List of all types of damage per hit and what potency of stat scaling."), "Potency", true);
-        KEditorTools.ListMini(effectsListProp, new GUIContent("Effects", "What will happen to each combatant hit by the attack?"), false);
-
-        GUILayout.Space(8);
-
-        SectionHeading(GetSubtypeName() + " data");
-        AttackSubtypeField();
-
-        serializedObject.ApplyModifiedProperties();
-    }
-    private void SectionHeading(string contentName)
-    {
-        EditorGUILayout.LabelField(contentName, EditorStyles.miniLabel);
-    }
-
-    protected abstract string GetSubtypeName();
-    protected abstract void AttackSubtypeField();
 }

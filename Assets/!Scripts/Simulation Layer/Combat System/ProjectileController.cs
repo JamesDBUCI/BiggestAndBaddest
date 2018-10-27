@@ -5,14 +5,18 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class ProjectileController : MonoBehaviour
 {
-    public DamagePacket Damage;                 //damage should be calculated and set when fired
-    public AttackType OriginalAttackType;       //process these effects at time of impact
-
     public float Speed;
+    private SkillController _skillController;    //holds the method we'll call to enact the skill phase
+    private List<Stat> _statSnapshot;   //holds the stats of the attacker at time of firing
 
+    public void Arm(SkillController skillController, List<Stat> statSnapshot)
+    {
+        _skillController = skillController;
+        _statSnapshot = statSnapshot;
+    }
     private void Start()
     {
-        Destroy(gameObject, 5f);
+        Destroy(gameObject, 5f);        //make this nicer later
     }
     private void FixedUpdate()
     {
@@ -25,8 +29,7 @@ public class ProjectileController : MonoBehaviour
         if (hitCombatant == null || collision.gameObject.CompareTag("Player"))
             return;
 
-        //Debug.Log("Hit Combatant");
-        OriginalAttackType.ApplyAttackEffects(Damage, new List<ICombatant>() { hitCombatant });
+        _skillController.ApplyAttackEffects(SkillPhaseTimingEnum.ON_MAIN_HIT, new List<Actor>() { hitCombatant }, _statSnapshot);
 
         Destroy(gameObject);    //this one
     }

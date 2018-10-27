@@ -61,8 +61,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\!Scripts\Const.cs" />
     <Compile Include="Assets\!Scripts\PlayerMover.cs" />
     <Compile Include="Assets\!Scripts\PlayerShooter.cs" />
+    <Compile Include="Assets\!Scripts\Presentation Layer\ChannelBar.cs" />
+    <Compile Include="Assets\!Scripts\Presentation Layer\SkillLockBar.cs" />
+    <Compile Include="Assets\!Scripts\Presentation Layer\SkillSlotController.cs" />
+    <Compile Include="Assets\!Scripts\Presentation Layer\UIManager.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Actor.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\ARPG Mods\AffixSlot.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\ARPG Mods\Mod.cs" />
@@ -72,20 +77,29 @@
     <Compile Include="Assets\!Scripts\Simulation Layer\Boundary.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\AttackEffect.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\AttackType.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\CombatClass.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\CombatController.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\CombatServices.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\CombatTimer.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\CrowdControlController.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\DamageType.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\DamageWithType.cs" />
-    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\MeleeAttack.cs" />
-    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\ProjectileAttack.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\MeleeSkill.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\ProjectileController.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\ProjectileSkill.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\Skill.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\SkillController.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\SkillManager.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Combat System\SkillPhase.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Game.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\GameDatabase.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\GameMath.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\Action.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\Choice.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\Condition.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\State.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\StateManager.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\Stat.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatChange.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatChangeType.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatController.cs" />
@@ -95,7 +109,10 @@
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatTemplate.cs" />
     <Compile Include="Assets\!Scripts\Tools\DatabaseHelper.cs" />
     <Compile Include="Assets\!Scripts\Tools\KEditorTools.cs" />
+    <Compile Include="Assets\!Scripts\Tools\KInspector.cs" />
+    <Compile Include="Assets\!Scripts\Tools\KPropertyDrawer.cs" />
     <Compile Include="Assets\!Scripts\Tools\KTools.cs" />
+    <Compile Include="Assets\!Scripts\Tools\MoreUnityEvents.cs" />
     <Compile Include="Assets\!Scripts\Tools\OptionalFloat.cs" />
     <Compile Include="Assets\!Scripts\Tools\OptionalInt.cs" />
     <Compile Include="Assets\!Scripts\Tools\Xuple.cs" />

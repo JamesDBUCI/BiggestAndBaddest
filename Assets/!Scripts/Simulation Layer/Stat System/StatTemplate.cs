@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Stat System/New Stat Template")]
+[CreateAssetMenu(menuName = "Stat")]
 public class StatTemplate : ScriptableObject
 {
     //data for a combat stat
@@ -16,50 +16,4 @@ public class StatTemplate : ScriptableObject
 
     public Color Color;     //there can be more of these
     public Sprite Icon;     //also of these
-}
-
-public class Stat
-{
-    //instance of a StatTemplate
-    public readonly StatTemplate Template;
-    public float Value { get; protected set; }
-
-    public Stat(StatTemplate template)
-    {
-        Template = template;
-    }
-    public void ChangeValue(float valueDelta)
-    {
-        Value += valueDelta;
-        LegalizeValue();
-    }
-    public void SetValue(float newValue)
-    {
-        Value = newValue;
-        LegalizeValue();
-    }
-    public void LegalizeValue()
-    {
-        Value = GetLegalizedValue(Template, Value);
-    }
-    public static float GetLegalizedValue(StatTemplate template, float originalValue)
-    {
-        //make the value conform to templates min, max, and precision specifications
-
-        //if precision is not provided, make the value integral
-        float precision = template.Precision.Enabled ? template.Precision.Value : 1;
-
-        //round to nearest precision level
-        originalValue = Mathf.Round(originalValue / precision) * precision;
-
-        //raise to minimum
-        if (template.MinValue.Enabled)
-            originalValue = Mathf.Max(originalValue, template.MinValue.Value);
-
-        //lower to maximum
-        if (template.MaxValue.Enabled)
-            originalValue = Mathf.Min(originalValue, template.MaxValue.Value);
-
-        return originalValue;
-    }
 }

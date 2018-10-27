@@ -17,7 +17,7 @@ public struct StatScaler
     }
 }
 
-[CustomPropertyDrawer(typeof(StatScaler))]
+//[CustomPropertyDrawer(typeof(StatScaler))]
 public class PD_StatScaler : PropertyDrawer
 {
     SerializedProperty statProp;
@@ -31,13 +31,16 @@ public class PD_StatScaler : PropertyDrawer
         statProp = property.FindPropertyRelative("Stat");
         scaleProp = property.FindPropertyRelative("Scale");
 
-        Rect secondRect = EditorGUILayout.GetControlRect();
-        Rect totalRect = new Rect(position) { height = position.height + formulaBoxHeight };
+        Rect secondRect;
+        if (statProp.objectReferenceValue != null)
+            secondRect = EditorGUILayout.GetControlRect(GUILayout.Height(formulaBoxHeight));
+        else
+            secondRect = new Rect();
+
+        Rect totalRect = new Rect(position) { height = position.height + secondRect.height };
 
         Rect scaleRect = new Rect(position) { width = scaleRectWidth };
         Rect statRect = new Rect(scaleRect.xMax, position.y, position.width - scaleRect.width, position.height);
-
-        Rect formulaRect = new Rect(secondRect) { height = formulaBoxHeight };
 
         EditorGUI.BeginProperty(totalRect, label, property);
 
@@ -49,9 +52,9 @@ public class PD_StatScaler : PropertyDrawer
         if (statObject != null)
         {
             string formula = string.Format("{0}% of {1}.", scaleProp.floatValue * 100, statObject.ExternalName);
-            GUI.Box(formulaRect, formula);
+            GUI.Box(secondRect, formula);
             //EditorGUI.HelpBox(secondRect, formula, MessageType.None);
-        }        
+        }
 
         EditorGUI.EndProperty();
     }

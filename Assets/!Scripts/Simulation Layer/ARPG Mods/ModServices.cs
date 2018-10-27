@@ -9,12 +9,6 @@ public static class ModServices
 
     public const int MAX_PREFIX_SUFFIX = 2;     //update this with rarity system
 
-    private static DatabaseHelper<ModTemplate> _modTemplateDB = new DatabaseHelper<ModTemplate>("ModTemplates", "Mod Template");
-    public static bool LoadModTemplateDB()
-    {
-        return _modTemplateDB.Load();
-    }
-
     public static bool ApplyNewRandomMod(IModdable moddable)
     {
         //grab a handle
@@ -34,7 +28,7 @@ public static class ModServices
 
         //get a random mod that matches the viability predicate (method is below)
         ModTemplate selectedModTemplate;
-        if (!_modTemplateDB.TryGetRandom(template => ModTemplateViabilityPredicate(mc, template), out selectedModTemplate))
+        if (!GameDatabase.Mods.TryGetRandom(template => ModTemplateViabilityPredicate(mc, template), out selectedModTemplate))
         {
             Debug.Log("No mod was applied to moddable because no mods were viable.");
             return false;

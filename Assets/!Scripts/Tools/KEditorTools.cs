@@ -12,6 +12,9 @@ public static class KEditorTools
     //create a single-line editor list from a serialized array property
     public static bool ListMini(SerializedProperty listProp, GUIContent label, bool canBeEmpty)
     {
+        if (listProp == null)
+            return false;
+
         //if the list has zero elements and it is not allowed to be empty
         if (listProp.arraySize < 1 && !canBeEmpty)
         {
@@ -326,5 +329,191 @@ public static class KEditorTools
         Texture image = (Texture)guiContentProp.FindPropertyRelative("image").objectReferenceValue ?? default(Texture);
 
         return new GUIContent(text, image, tool);
+    }
+}
+
+[System.Serializable]
+public sealed class EditorPageFlipper
+{
+    public SerializedProperty List { get; private set; }
+    public GUIContent HeaderInfo { get; private set; }
+    public System.Func<SerializedProperty, int, string> PageTitleRetriever { get; private set; }
+
+    public int SelectedPage { get; private set; }
+
+    public EditorPageFlipper(SerializedProperty listProp, GUIContent headerInfo = null, System.Func<SerializedProperty, int, string> pageTitleRetriever = null)
+    {
+        List = listProp;
+        HeaderInfo = headerInfo ?? GUIContent.none;
+        PageTitleRetriever = pageTitleRetriever;
+        SelectedPage = 0;
+    }
+    public bool Draw()
+    {
+        if (List == null)
+            return false;
+
+        if (List.arraySize == 0)
+        {
+            List.InsertArrayElementAtIndex(0);
+        }
+
+        //header
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField(HeaderInfo, EditorStyles.boldLabel);
+        if (GUILayout.Button("Insert", EditorStyles.miniButtonLeft, GUILayout.Width(70)))
+        {
+            List.InsertArrayElementAtIndex(List.arraySize);
+            return true;
+        }
+        if (GUILayout.Button("Remove", EditorStyles.miniButtonRight, GUILayout.Width(80)))
+        {
+            if (List.arraySize > 1)
+            {
+                List.DeleteArrayElementAtIndex(SelectedPage);
+                SelectedPage = Mathf.Max(0, SelectedPage - 1);
+                return true;
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+
+        SelectedPage = EditorGUILayout.IntSlider(SelectedPage, 0, List.arraySize - 1);
+        GUILayout.Space(8);
+
+        //body
+        return DrawPage(SelectedPage);
+    }
+    private bool DrawPage(int index)
+    {
+        if (index > List.arraySize)
+            return false;
+
+        SerializedProperty page = List.GetArrayElementAtIndex(index);
+
+        if (page == null)
+            return false;
+
+        if (PageTitleRetriever != null)
+            EditorGUILayout.LabelField(PageTitleRetriever(page, index), EditorStyles.miniBoldLabel);
+
+        EditorGUILayout.PropertyField(page, true);
+        return true;
+    }
+}
+public class PropertyDataSet
+{
+    private const string KPD_ERROR_MAIN = "KEditorTools Error:";
+    private static void LogError(string message)
+    {
+        Debug.LogError(KPD_ERROR_MAIN + " " + message);
+    }
+
+    public SerializedProperty Property { get; private set; }
+    public GUIContent Content { get; private set; }
+    public string FieldName { get; private set; }
+
+    public PropertyFieldDisplayType DisplayType { get; private set; }
+    public bool HideForManualDraw { get; private set; }
+
+    public PropertyDataSet(string fieldName, GUIContent content = null, PropertyFieldDisplayType displayType = null, bool hideForManualDraw = false)
+    {
+        Property = null;
+        FieldName = fieldName;
+        DisplayType = displayType ?? PropertyFieldDisplayType.Basic;
+        Content = content;
+        HideForManualDraw = hideForManualDraw;
+    }
+    public void UpdateProp(SerializedProperty coreProp)
+    {
+        if (coreProp == null)
+        {
+            LogError("UpdateProp() failed because the core property was null.");
+            return;
+        }
+
+        //Debug.Log(coreProperty.type + " " + coreProperty.CountInProperty());
+        Property = coreProp.FindPropertyRelative(FieldName);
+
+        if (Property == null)
+        {
+            LogError("UpdateProp() failed because a sub-property with field name \"" + FieldName + "\" was not found.");
+            return;
+        }
+
+        if (Content == null)
+            Content = GetDefaultContent();
+    }
+    //public SerializedProperty GetProp(SerializedProperty coreProp)
+    //{
+    //    return coreProp.FindPropertyRelative(FieldName);
+    //}
+    public GUIContent GetDefaultContent()
+    {
+        if (Property == null)
+        {
+            LogError("GetDefaultContent() failed because Property was null.");
+            return GUIContent.none;
+        }
+        return new GUIContent(Property.displayName, Property.tooltip);
+    }
+    public void Draw()
+    {
+        if (Property == null)
+        {
+            LogError("Draw() failed because Property was null.");
+            return;
+        }
+        DisplayType.Display(Property, this);
+        //DisplayType.Display(GetProp(coreProp), this);
+    }
+    public void Draw(Rect rect)
+    {
+        DisplayType.Display(Property, this, rect);
+    }
+}
+public class PropertyFieldDisplayType
+{
+    //contains info about displaying PropertyDrawer fields
+
+    //static instances
+    public static PropertyFieldDisplayType Basic =
+        new PropertyFieldDisplayType((prop, pds) => EditorGUILayout.PropertyField(prop, pds.Content),
+                                     (prop, pds, rect) => EditorGUI.PropertyField(rect, prop, pds.Content));
+
+    //instance members
+    public readonly System.Action<SerializedProperty, PropertyDataSet> DisplayLayout;
+    public readonly System.Action<SerializedProperty, PropertyDataSet, Rect> DisplayManual;
+
+    public PropertyFieldDisplayType(System.Action<SerializedProperty,
+        PropertyDataSet> layoutDisplayMethod,
+        System.Action<SerializedProperty, PropertyDataSet, Rect> manualDisplayMethod)
+    {
+        DisplayLayout = layoutDisplayMethod;
+        DisplayManual = manualDisplayMethod;
+    }
+    public void Display(SerializedProperty property, PropertyDataSet pds)
+    {
+        if (DisplayLayout != null)
+            DisplayLayout(property, pds);
+    }
+    public void Display(SerializedProperty property, PropertyDataSet pds, Rect rect)
+    {
+        if (DisplayManual != null)
+            DisplayManual(property, pds, rect);
+    }
+
+    public class ListBig : PropertyFieldDisplayType
+    {
+        public ListBig(bool canBeEmpty)
+            : this("", canBeEmpty) { }
+        public ListBig(string contentType, bool canBeEmpty)
+            : base((prop, pds) => KEditorTools.ListBig(prop, pds.Content, contentType, canBeEmpty),     //layout
+                    null) { }                                                                           //no manual version
+    }
+    public class ListMini : PropertyFieldDisplayType
+    {
+        public ListMini(bool canBeEmpty)
+            : base((prop, pds) => KEditorTools.ListMini(prop, pds.Content, canBeEmpty),                 //layout
+                    null) { }                                                                           //no manual version
     }
 }

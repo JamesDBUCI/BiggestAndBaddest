@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class DatabaseHelper<DBType> where DBType : ScriptableObject
 {
@@ -12,19 +13,32 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
     protected readonly string _path;           //where below the resources folder are these assets located?
     protected readonly string _assetTypeName;  //for debug log, what kind of assets are these?
 
+    //events
+    public UnityEventDatabaseHelper onCreated = new UnityEventDatabaseHelper();
+    public UnityEvent onStartLoad = new UnityEvent();
+    public UnityEventInt onSuccessfulLoad = new UnityEventInt();
+    public UnityEventString onFailedLoad = new UnityEventString();
+    public UnityEventString onFailedToLocateAsset = new UnityEventString();
+
     //constructor
     public DatabaseHelper(string path, string assetTypeName)
     {
         _path = path;
         _assetTypeName = assetTypeName;
+
+        if (onCreated != null)
+            onCreated.Invoke(this);
     }
 
     //methods
-    public bool Load()
+    public bool Load(bool logStart = true, bool logSuccess = true)
     {
         //Load all assets of the specified type from the specified directory into a managed dictionary
         //return true if load was successful
         //call this during game initialization
+
+        if (onStartLoad != null)
+            onStartLoad.Invoke();
 
         //resource path
         var targetPath = Application.dataPath + "/Resources/" + _path;
@@ -32,12 +46,16 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
         //check to see if directory even exists
         if (!Directory.Exists(targetPath))
         {
+            if (onFailedLoad != null)
+                onFailedLoad.Invoke(targetPath);
+
             Debug.LogError("Unable to resolve path for " + _assetTypeName + " database: " + targetPath);
             return false;
         }
         else
         {
-            Debug.Log("Loading " + _assetTypeName + " database: " + targetPath);
+            if (logStart)
+                Debug.Log("Loading " + _assetTypeName + " database: " + targetPath);
         }
 
         //empty the current database in case we call this multiple times
@@ -47,12 +65,18 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
         new List<DBType>(Resources.LoadAll<DBType>(_path))
             .ForEach(loaded => _database.Add(loaded.name.ToUpper(), loaded));
 
-        //declare database count
-        Debug.Log(string.Format("Just loaded all {0} entries in {1} database.", _database.Count, _assetTypeName));
+        if (onSuccessfulLoad != null)
+            onSuccessfulLoad.Invoke(_database.Count);
 
-        //if the database is empty, then why do we even have it? something must have gone wrong.
-        if (_database.Count == 0)
-            return false;
+        //declare database count
+        if (logSuccess)
+        {
+            //if the database is empty, then why do we even have it? something must have gone wrong.
+            if (_database.Count == 0)
+                Debug.Log(string.Format("{0} database was successfully loaded, but is empty.", _assetTypeName));
+            else
+                Debug.Log(string.Format("Just loaded all {0} asset(s) in {1} database.", _database.Count, _assetTypeName));
+        }
 
         //everything went right, return true
         return true;
@@ -63,6 +87,10 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
             return true;
 
         Debug.LogError("Database Error: Unable to locate asset with internal name: " + identifierString);
+
+        if (onFailedToLocateAsset != null)
+            onFailedToLocateAsset.Invoke(identifierString);
+
         return false;
     }
     public bool TryFindMany(System.Predicate<DBType> predicate, out List<DBType> foundAssets)
@@ -149,4 +177,6 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
     {
         return _database.Values.ToList();
     }
+
+    [System.Serializable] public class UnityEventDatabaseHelper : UnityEvent<DatabaseHelper<DBType>> { }
 }

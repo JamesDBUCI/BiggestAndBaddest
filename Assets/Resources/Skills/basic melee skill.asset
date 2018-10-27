@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9dc5cc5d994a10468c7efd4e6a409b9, type: 3}
+  m_Name: basic melee skill
+  m_EditorClassIdentifier: 
+  ExternalName: Basic Melee Hit
+  Icon: {fileID: 21300000, guid: 97a780be4673d4d4986d9399b4b16cb4, type: 3}
+  SkillTimeline:
+    InstantSpeedInfo:
+      HasInstantSpeed: 0
+      CanUseWhileChanneling: 1
+    CooldownInfo:
+      HasCooldown: 0
+      CooldownDuration: 1
+    SkillLockInfo:
+      SkillLockDuration: 0.45
+    ChannelingInfo:
+      IsChanneledSkill: 0
+      ChannelDuration: 1
+      EnemiesCanInterrupt: 1
+      SelfInflictedCC: {fileID: 0}
+      MovingCancelsChannel: 1
+  SkillPhases:
+  - SkillPhaseTiming: 3
+    SkillEffects: 00000000
+    StatScaling:
+    - Stat: {fileID: 11400000, guid: c0b49effc809b0840affe104392c91ea, type: 2}
+      Scale: 1
+    Potency:
+    - CoreDamageType: 0
+      SecondaryTypes:
+      - {fileID: 11400000, guid: c984a954ccefa8c45b9c72f811649fb4, type: 2}
+      Value: 50
+    - CoreDamageType: 1
+      SecondaryTypes:
+      - {fileID: 11400000, guid: 321af4aa4e8d3f946ad0012a7b5d38cf, type: 2}
+      Value: 50
+  MeleeRange: 1

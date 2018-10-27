@@ -36,7 +36,7 @@ public class Cond_HPValue : Condition
         else
             del = (f, g) => f != g;     //CompareType == Comparator.DIFFERENT_FROM
 
-        return del(stateManager.ParentActor._combatController.GetHP(), HPValue);
+        return del(stateManager.ParentActor.CombatController.CurrentHP, HPValue);
     }
 }
 
