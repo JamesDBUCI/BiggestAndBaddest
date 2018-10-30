@@ -5,68 +5,21 @@ using UnityEngine;
 
 public static class StatServices
 {
-    public const float MAX_RESISTANCE_STAT_VALUE = 75;
-
-    public static DatabaseHelper<StatTemplate> StatTemplateDB = new DatabaseHelper<StatTemplate>("Stats", "Combat Stat");
-    public static DatabaseHelper<StatFlag> StatFlagDB = new DatabaseHelper<StatFlag>("Flags", "Stat Flag");
-
-    public static bool LoadStatDBs()
+    public static StatController CreateStat(StatTemplate template)
     {
-        if (!StatTemplateDB.Load())
-            return false;
-        if (!StatFlagDB.Load())
-            return false;
-        return true;
-    }
-
-    public static Stat CreateStat(StatTemplate template)
-    {
-        Stat newStat = new Stat(template);
+        StatController newStat = new StatController(template);
         newStat.SetValue(template.DefaultValue);
         return newStat;
     }
-    public static List<Stat> GetInitializedStatList()
+    public static StatController CreateNewStatFromClassStatTemplate(ActorClassStatTemplate classStat)
     {
-        List<Stat> statList = new List<Stat>();
-        foreach(StatTemplate template in StatTemplateDB.GetAllAssets())
-        {
-            statList.Add(CreateStat(template));
-        }
-        return statList;
-    }
-    public static void TestStatSystem(IHaveStats actor)
-    {
-        StatController sc = actor.GetStatController();
+        if (string.IsNullOrEmpty(classStat.InternalName))
+            return null;
 
         StatTemplate foundTemplate;
-        if (!StatTemplateDB.TryFind("strength", out foundTemplate))
-            return;
+        if (!GameDatabase.Stats.TryFind(classStat.InternalName, out foundTemplate))
+            return null;
 
-        Debug.Log("Base Strength stat: " + sc.GetBaseStatValue(foundTemplate));
-        Debug.Log("Current Strength stat: " + sc.CalculateCurrentStatValue(foundTemplate));
-
-        sc.AddStatChanges(new List<StatChange>()
-        {
-            new StatChange("strength", StatChangeTypeEnum.PLUS, 25),
-            new StatChange("strength", StatChangeTypeEnum.INCREASED, 25f),
-        });
-
-        Debug.Log("Added stat changes.");
-        Debug.Log("Stat change count = " + sc.CountStatChanges());
-
-        Debug.Log("Base Strength stat: " + sc.GetBaseStatValue(foundTemplate));
-        Debug.Log("Current Strength stat: " + sc.CalculateCurrentStatValue(foundTemplate));
-
-        StatFlag foundFlag;
-        if (!StatFlagDB.TryFind("cooling strike", out foundFlag))
-            return;
-
-        Debug.Log("stat controller has \"Cooling Strike\": " + sc.CheckFlag(foundFlag));
-
-        sc.AddFlag(foundFlag);
-
-        Debug.Log("Added stat flag.");
-
-        Debug.Log("stat controller has \"Cooling Strike\": " + sc.CheckFlag(foundFlag));
+        return new StatController(foundTemplate, classStat.BaseValue);
     }
 }

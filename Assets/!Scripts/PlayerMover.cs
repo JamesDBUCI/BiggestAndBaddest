@@ -2,34 +2,33 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Actor))]
 public class PlayerMover : MonoBehaviour
 {
-    public float speed;
-
-    Rigidbody2D rb;
+    Actor _parent;
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        _parent = GetComponent<Actor>();
 	}
 	
-	// Update is called once per frame
 	void FixedUpdate ()
     {
+        //look
+        Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        float angleToCursor = Vector2.SignedAngle(_parent.AimTransform.up, worldMousePos - _parent.AimTransform.position);
+        //Debug.Log(angleToCursor);
+
+        _parent.RotateAim(angleToCursor);
+
         //move
         var v = Input.GetAxisRaw("Vertical");
         var h = Input.GetAxisRaw("Horizontal");
 
         if (h != 0 || v != 0)
         {
-            rb.AddForce(new Vector3(h, v).normalized * speed * Time.fixedDeltaTime, ForceMode2D.Impulse);
-        }
-
-        //stay
-        Boundary gameBounds = Game.Self.PlayableArea;
-        if (!gameBounds.Contains(rb.position))
-        {
-            rb.position = gameBounds.ClosestPoint(rb.position);
+            _parent.AddMovementForce(new Vector2(h, v).normalized, _parent.MovementSpeed);
         }
     }
 }

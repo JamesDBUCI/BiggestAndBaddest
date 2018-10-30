@@ -1,98 +1,57 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class StatController
 {
-    protected List<Stat> _stats;
-    protected List<StatFlag> _flags = new List<StatFlag>();
-    protected List<StatChange> _statChanges = new List<StatChange>();
+    //instance of a StatTemplate
 
-    public StatController()
+    public readonly StatTemplate Template;
+    public float Value { get; protected set; }
+
+    //ctor
+    public StatController(StatTemplate template)
+        : this(template, template.DefaultValue) { }
+
+    public StatController(StatTemplate template, float value)
     {
-        _stats = StatServices.GetInitializedStatList();
-    }
-    
-    //stat functions
-    protected Stat FindStat(StatTemplate template)
-    {
-        return _stats.Find(s => s.Template == template);
-    }
-    public float GetBaseStatValue(StatTemplate template)
-    {
-        return FindStat(template).Value;
-    }
-    public void ChangeBaseStat(StatTemplate template, float valueDelta)
-    {
-        FindStat(template).ChangeValue(valueDelta);
-    }
-    public void SetBaseStat(StatTemplate template, float newValue)
-    {
-        FindStat(template).SetValue(newValue);
+        Template = template;
+        SetValue(value);
     }
 
-    public float CalculateCurrentStatValue(StatTemplate template)
+    //functions
+    public void ChangeValue(float valueDelta)
     {
-        List<StatChange> changesForThisStat = _statChanges.Where(change => change.StatInternalName == template.name).ToList();
+        Value += valueDelta;
+        LegalizeValue();
+    }
+    public void SetValue(float newValue)
+    {
+        Value = newValue;
+        LegalizeValue();
+    }
+    public void LegalizeValue()
+    {
+        Value = GetLegalizedValue(Template, Value);
+    }
+    public static float GetLegalizedValue(StatTemplate template, float originalValue)
+    {
+        //make the value conform to templates min, max, and precision specifications
 
-        float calculatedValue = GameMath.CalculateStatWithChanges(GetBaseStatValue(template), changesForThisStat);
+        //if precision is not provided, make the value integral
+        float precision = template.Precision.Enabled ? template.Precision.Value : 1;
 
-        return Stat.GetLegalizedValue(template, calculatedValue);
-    }
+        //round to nearest precision level
+        originalValue = Mathf.Round(originalValue / precision) * precision;
 
-    //flag functions
-    public bool AddFlag(StatFlag newFlag)
-    {
-        if (_flags.Contains(newFlag))
-            return false;
+        //raise to minimum
+        if (template.MinValue.Enabled)
+            originalValue = Mathf.Max(originalValue, template.MinValue.Value);
 
-        _flags.Add(newFlag);
-        return true;
-    }
-    public bool RemoveFlag(StatFlag newFlag)
-    {
-        //naturally returns false if none was found
-        return _flags.Remove(newFlag);
-    }
-    public bool CheckFlag(StatFlag newFlag)
-    {
-        return _flags.Contains(newFlag);
-    }
+        //lower to maximum
+        if (template.MaxValue.Enabled)
+            originalValue = Mathf.Min(originalValue, template.MaxValue.Value);
 
-    //stat change functions
-    public void AddStatChange(StatChange newChange)
-    {
-        _statChanges.Add(newChange);
+        return originalValue;
     }
-    public void AddStatChanges(List<StatChange> newChanges)
-    {
-        _statChanges.AddRange(newChanges);
-    }
-    public bool RemoveStatChange(StatChange change)
-    {
-        return _statChanges.Remove(change);
-    }
-    public bool RemoveStatChanges(List<StatChange> changes)
-    {
-        bool allWereRemoved = true;
-        foreach (StatChange change in changes)
-        {
-            allWereRemoved = allWereRemoved && _statChanges.Remove(change);
-        }
-        return allWereRemoved;
-    }
-    protected bool HasStatChange(StatChange change)
-    {
-        return _statChanges.Contains(change);
-    }
-    public int CountStatChanges()
-    {
-        return _statChanges.Count;
-    }
-}
-
-public interface IHaveStats
-{
-    StatController GetStatController();
 }

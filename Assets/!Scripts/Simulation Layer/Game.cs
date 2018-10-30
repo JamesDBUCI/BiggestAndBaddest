@@ -5,11 +5,18 @@ using UnityEngine;
 public class Game : MonoBehaviour
 {
     public static Game Self = null;
+    public static UIManager UI = null;
 
     public bool IsPaused { get; private set; }
 
-    public Actor TestBoss;
-    public Actor Player;
+    public Actor TestBossPrefab;
+    public Actor TestBoss { get; private set; }
+
+    public Actor PlayerPrefab;
+    public ActorClass PlayerClass;
+    public List<Skill> TestPlayerSkills;
+    public Actor Player { get; private set; }
+
     public Boundary PlayableArea;
 
     private void OnEnable()
@@ -17,45 +24,44 @@ public class Game : MonoBehaviour
         Self = this;
         IsPaused = false;
 
-        if (!ModServices.LoadModTemplateDB())
+        if (!GameDatabase.Load(false, true))
         {
-            Debug.LogError("error");
-        }
-        if (!StatServices.LoadStatDBs())
-        {
-            Debug.LogError("error");
-        }
-        if (!CombatServices.LoadAttackTypeDB())
-        {
-            Debug.LogError("error");
+            return;
         }
     }
     // Use this for initialization
     void Start ()
     {
-        Player.GetCombatController().Init();
-
-        StatTemplate phys;
-        StatServices.StatTemplateDB.TryFind("physical might", out phys);
-
-        Player.GetCombatController().GetStatController().ChangeBaseStat(phys, 25);
-
-        TestBoss.GetCombatController().Init();
-
-        StatTemplate pRes;
-        StatServices.StatTemplateDB.TryFind("Piercing Resistance", out pRes);
-
-        TestBoss.GetCombatController().GetStatController().ChangeBaseStat(pRes, 10);
+        TestSpawnPlayerCharacter();
+        TestBoss = SpawnActor(TestBossPrefab, PlayerClass, Vector2.zero);
+        UI.TestSetup();
 
         //ModServices.TestModSystem(TestBoss);
         //StatServices.TestStatSystem(TestBoss);
     }
-	
-	// Update is called once per frame
-	void Update ()
+    public void TestSpawnPlayerCharacter()
     {
-        
-	}
+        Actor playerActor = SpawnActor(PlayerPrefab, PlayerClass, new Vector2(-2, -2));
+        for (int i = 0; i < TestPlayerSkills.Count; i++)
+        {
+            playerActor.CombatController.Skills.SetSkillSlot(i, TestPlayerSkills[i]);
+        }
+        //playerActor.CombatController.CrowdControl.AddCC("crunk", 200);
 
-    
+        Player = playerActor;
+    }
+    public Actor SpawnActor(Actor prefab, ActorClass combatClass, Vector2 location)
+    {
+        if (prefab == null)
+        {
+            Debug.LogError("Assign prefab, stupid!");
+            return null;
+        }
+
+        Actor actor = Instantiate(prefab, location, Quaternion.identity);
+
+        actor.CombatController.Init();
+        actor.CombatController.ChangeClass(combatClass, true);
+        return actor;
+    }
 }

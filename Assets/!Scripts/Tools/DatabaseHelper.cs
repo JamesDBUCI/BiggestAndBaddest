@@ -3,28 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class DatabaseHelper<DBType> where DBType : ScriptableObject
+[System.Serializable] public class UnityEventDatabaseHelper : UnityEvent<DatabaseHelper> { }
+public abstract class DatabaseHelper
 {
-    //Helper class for managing and querying collections of ScriptableObjects (i.e. ModTemplates)
-
-    protected Dictionary<string, DBType> _database = new Dictionary<string, DBType>();      //actual database of assets
     protected readonly string _path;           //where below the resources folder are these assets located?
     protected readonly string _assetTypeName;  //for debug log, what kind of assets are these?
 
+    //events
+    public UnityEvent onStartLoad = new UnityEvent();
+    public UnityEventInt onSuccessfulLoad = new UnityEventInt();
+    public UnityEventString onFailedLoad = new UnityEventString();
+    public UnityEventString onFailedToLocateAsset = new UnityEventString();
+
     //constructor
-    public DatabaseHelper(string path, string assetTypeName)
+    public DatabaseHelper(string path, string assetTypeName, List<DatabaseHelper> containerList = null)
     {
         _path = path;
         _assetTypeName = assetTypeName;
-    }
 
+        if (containerList != null)
+            containerList.Add(this);
+    }
     //methods
-    public bool Load()
+    public bool Load(bool logStart = true, bool logSuccess = true)
     {
         //Load all assets of the specified type from the specified directory into a managed dictionary
         //return true if load was successful
         //call this during game initialization
+
+        if (onStartLoad != null)
+            onStartLoad.Invoke();
 
         //resource path
         var targetPath = Application.dataPath + "/Resources/" + _path;
@@ -32,30 +42,59 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
         //check to see if directory even exists
         if (!Directory.Exists(targetPath))
         {
+            if (onFailedLoad != null)
+                onFailedLoad.Invoke(targetPath);
+
             Debug.LogError("Unable to resolve path for " + _assetTypeName + " database: " + targetPath);
             return false;
         }
         else
         {
-            Debug.Log("Loading " + _assetTypeName + " database: " + targetPath);
+            if (logStart)
+                Debug.Log("Loading " + _assetTypeName + " database: " + targetPath);
         }
 
+        int count = Load_Internal();
+
+        if (onSuccessfulLoad != null)
+            onSuccessfulLoad.Invoke(count);
+
+        //declare database count
+        if (logSuccess)
+        {
+            //if the database is empty, then why do we even have it? something must have gone wrong.
+            if (count == 0)
+                Debug.Log(string.Format("{0} database was successfully loaded, but is empty.", _assetTypeName));
+            else
+                Debug.Log(string.Format("Just loaded all {0} asset(s) in {1} database.", count, _assetTypeName));
+        }
+
+        //everything went right, return true
+        return true;
+    }
+    protected abstract int Load_Internal();  //return database.Count
+}
+public class DatabaseHelper<DBType> : DatabaseHelper where DBType : ScriptableObject
+{
+    //Helper class for managing and querying collections of ScriptableObjects (i.e. ModTemplates)
+
+    protected Dictionary<string, DBType> _database = new Dictionary<string, DBType>();      //actual database of assets
+
+    public DatabaseHelper(string path, string assetTypeName, List<DatabaseHelper> containerList = null) :base(path, assetTypeName, containerList) { }
+
+    protected override int Load_Internal()   //return database.Count
+    {
         //empty the current database in case we call this multiple times
         _database.Clear();
 
         //load all assets of specified type and add them to the dictionary (key is the ScriptableObject's Unity name in CAPS, like "MY MOD TEMPLATE 03")
-        new List<DBType>(Resources.LoadAll<DBType>(_path))
-            .ForEach(loaded => _database.Add(loaded.name.ToUpper(), loaded));
+        var foundAssets = new List<DBType>(Resources.LoadAll<DBType>(_path));
+        int count = foundAssets.Count;
+        if (count == 0)
+            return count;
 
-        //declare database count
-        Debug.Log(string.Format("Just loaded all {0} entries in {1} database.", _database.Count, _assetTypeName));
-
-        //if the database is empty, then why do we even have it? something must have gone wrong.
-        if (_database.Count == 0)
-            return false;
-
-        //everything went right, return true
-        return true;
+        foundAssets.ForEach(loaded => _database.Add(loaded.name.ToUpper(), loaded));
+        return count;
     }
     public bool TryFind(string identifierString, out DBType foundAsset)
     {
@@ -63,6 +102,10 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
             return true;
 
         Debug.LogError("Database Error: Unable to locate asset with internal name: " + identifierString);
+
+        if (onFailedToLocateAsset != null)
+            onFailedToLocateAsset.Invoke(identifierString);
+
         return false;
     }
     public bool TryFindMany(System.Predicate<DBType> predicate, out List<DBType> foundAssets)

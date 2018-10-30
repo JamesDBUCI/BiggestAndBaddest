@@ -1,103 +1,84 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
-public class ModController
+public interface IMod
 {
-    //handles all interaction with a moddable thing's mods
-    //an IModdable must have one of these (or be able to procure one upon request)
+    string GetNameInternal();
+    string GetNameExternal();
+    ModDescription GetDescription();
+    AffixSlotEnum GetAffixSlot();
+    StatChange[] GetStatChanges(StatChangeTypeEnum ofType);
+    StatFlag[] GetFlags();
+}
 
-    //internal managed list of mod instances (these have been rolled)
-    private List<IMod> _mods = new List<IMod>();
+public class ModController : IMod
+{
+    //generated from template, not modified by Unity
+    readonly ModTemplate _template;
+    readonly List<StatChange> _rolledChanges;
 
-    public void AddModFromTemplate(ModTemplate template)
+    public ModController(ModTemplate template, List<StatChange> statChanges)
     {
-        //roll a new mod instance and add it
-        AddExactMod(ModServices.CreateMod(template));
-    }
-    public void AddExactMod(IMod mod)
-    {
-        //add a mod
-        //validity checks are left to ModServices
-
-        _mods.Add(mod);
-    }
-    public void RerollMod(ModTemplate template)
-    {
-        //reroll the values of a mod
-
-        if (!HasMod(template))          //if it has it
-            return;
-
-        RemoveMod(template);            //remove it
-        AddModFromTemplate(template);   //add a new one
-    }
-    public void RemoveMod(ModTemplate template)
-    {
-        //remove a mod
-        if (!HasMod(template))          //if it has it
-            return;
-
-        _mods.RemoveAll(m => m.GetNameInternal() == template.name);     //remove all mods that match
-    }
-    private IMod FindMod(ModTemplate template)
-    {
-        //internal method for finding mods that come from a template
-        return _mods.Find(m => m.GetNameInternal() == template.name);
-    }
-    public bool HasMod(ModTemplate template)
-    {
-        //does this mod controller have a mod with this template
-        IMod foundMod = FindMod(template);
-        if (foundMod != null)
-            return true;
-        return false;
-    }
-    public int CountMods()
-    {
-        return _mods.Count; //herp derp
-    }
-    public int CountMods(AffixSlotEnum withAffix)
-    {
-        //make predicate for comparing affix slot, then pass to method below
-        return CountMods(m => m.GetAffixSlot() == withAffix);
-    }
-    public int CountMods(System.Func<IMod, bool> predicate)
-    {
-        //return number of mods which match predicate
-        return _mods.Where(predicate).Count();
+        _template = template;
+        _rolledChanges = new List<StatChange>(statChanges);     //cloned list
     }
 
-    public string GetModifiedName(string baseName)
+    public AffixSlotEnum GetAffixSlot()
     {
-        //get a base name modified by all mods on this mod controller
-        string returnString = baseName;
+        return _template.AffixSlot;
+    }
 
-        //iterate all mods in list
-        foreach (IMod mod in _mods)
+    public ModDescription GetDescription()
+    {
+        //Debug.Log("Hello from class Mod.");
+        List<string> effectsTemplate = new List<string>();
+        List<string> effectsRolled = new List<string>();
+
+        for (int i = 0; i < _template.StatChanges.Count; i++)
         {
-            //grab a handle for affix slot meta data
-            AffixSlot affix;
-            if (!AffixSlot.TryGet(mod.GetAffixSlot(), out affix))
+            StatChangeTemplate changeTemplate = _template.StatChanges[i];
+
+            StatChangeType changeType;
+            if (!StatChangeType.TryGet(changeTemplate.ChangeType, out changeType))
                 continue;
 
-            //each mod will modify the name by accessing the pattern prescribed by the AffixSlot it's using
-            //implicits and uniques will do nothing, prefixes and suffixes will apply changes
-            returnString = affix.ModifyName(returnString, mod.GetNameExternal());
+            string affectedStatExternalName = _template.StatChanges[i].AffectedStat.ExternalName;
+
+            effectsTemplate.Add(changeType.GetFormattedValueString(changeTemplate.MinValue, changeTemplate.MaxValue, affectedStatExternalName));
+            effectsRolled.Add(changeType.GetFormattedValueString(_rolledChanges[i].Value, affectedStatExternalName));
         }
-        return returnString;
+
+        for (int i = 0; i < _template.Flags.Count; i++)
+        {
+            //add all flag descriptions (later, maybe have separate internal and external descriptions)
+            effectsRolled.Add(_template.Flags[i].ExternalName);
+            effectsTemplate.Add(_template.Flags[i].ExternalName);
+        }
+
+        //return the effect descriptions
+        return new ModDescription(_template.NameExternal, _template.AffixSlot.ToString(), effectsTemplate, effectsRolled);
     }
 
-    public List<ModDescription> GetAllModDescriptions()
+    public StatFlag[] GetFlags()
     {
-        //Debug.Log("Hello from class ModController.");
-        List<ModDescription> modDescriptions = new List<ModDescription>();
-        foreach (Mod m in _mods)
-        {
-            modDescriptions.Add(m.GetDescription());
-        }
+        return _template.Flags.ToArray();
+    }
 
-        return modDescriptions;
+    public string GetNameExternal()
+    {
+        return _template.NameExternal;
+    }
+
+    public string GetNameInternal()
+    {
+        return _template.name;  //returns the asset name from the editor, such as "New Mod Template"
+    }
+
+    public StatChange[] GetStatChanges(StatChangeTypeEnum ofType)
+    {
+        List<StatChange> statChangeSubset = _rolledChanges.FindAll(change => change.ChangeType == ofType);
+        return statChangeSubset.ToArray();
     }
 }
+

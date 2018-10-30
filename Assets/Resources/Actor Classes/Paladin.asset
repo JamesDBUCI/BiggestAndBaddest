@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b14c15279a0de1468b7b8ad21344afd, type: 3}
+  m_Name: Paladin
+  m_EditorClassIdentifier: 
+  ExternalName: Palatest
+  Stats:
+  - InternalName: core_scale_maxHP
+    ExternalName: Constitution
+    BaseValue: 10
+    ValuePerLevel: 1
+  - InternalName: core_scale_physical
+    ExternalName: Might
+    BaseValue: 10
+    ValuePerLevel: 1
+  - InternalName: core_scale_magic
+    ExternalName: Guile
+    BaseValue: 10
+    ValuePerLevel: 1
+  - InternalName: resist_physical
+    ExternalName: Armor
+    BaseValue: 10
+    ValuePerLevel: 1
+  - InternalName: resist_magic
+    ExternalName: Spell Resistance
+    BaseValue: 10
+    ValuePerLevel: 1
