@@ -3,42 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CreateAssetMenu(menuName = "Mod System/New ModTemplate")]
-public class ModTemplate : ScriptableObject
+public abstract class ModTemplate : ScriptableObject
 {
     //Unity's editable template for a mod
 
     public string NameExternal;
     public AffixSlotEnum AffixSlot;
     public bool Hidden;
-    public List<StatChangeTemplate> StatChanges;
-    public List<StatFlag> Flags;
     public bool ModIsDisabled;
 }
 
-[CustomEditor(typeof(ModTemplate))]
-public class Insp_ModTemplate : Editor
+public abstract class Insp_ModTemplate : Editor
 {
     SerializedProperty nameProp;
     SerializedProperty affixProp;
     SerializedProperty hideProp;
-    SerializedProperty changesListProp;
-    SerializedProperty flagsListProp;
     SerializedProperty disabledProp;
 
-    private void OnEnable()
+    protected void OnEnable()
     {
         nameProp = serializedObject.FindProperty("NameExternal");
         affixProp = serializedObject.FindProperty("AffixSlot");
         hideProp = serializedObject.FindProperty("Hidden");
-        changesListProp = serializedObject.FindProperty("StatChanges");
-        flagsListProp = serializedObject.FindProperty("Flags");
         disabledProp = serializedObject.FindProperty("ModIsDisabled");
+
+        OnEnable_Late();
     }
+    protected virtual void OnEnable_Late() { }
+
     public override void OnInspectorGUI()
     {
-        //base.OnInspectorGUI();
-
         serializedObject.Update();
 
         if (disabledProp.boolValue)
@@ -56,9 +50,10 @@ public class Insp_ModTemplate : Editor
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.PropertyField(hideProp, new GUIContent("Hidden from Player", "Players will not see this mod listed, but will still be in effect."));
-        KEditorTools.ListBig(changesListProp, new GUIContent("Stat Changes", "What stats will be affected and how?"), "Stat Change", true);
-        KEditorTools.ListMini(flagsListProp, new GUIContent("Stat Flags", "Which flags are set to \"true\" by this mod?"), true);
+
+        OnInspectorGUI_Late();
 
         serializedObject.ApplyModifiedProperties();
     }
+    protected virtual void OnInspectorGUI_Late() { }
 }

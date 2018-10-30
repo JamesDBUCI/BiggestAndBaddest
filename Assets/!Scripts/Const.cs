@@ -5,13 +5,14 @@ using UnityEngine;
 public static class Const
 {
     //asset paths (Assets/Resources/[path])
-    public const string ASSET_PATH_MODS = "Gear Mods";
+    public const string ASSET_PATH_MODS = "Mods";
     public const string ASSET_PATH_STATS = "Stats";
     public const string ASSET_PATH_CLASSES = "Actor Classes";
     public const string ASSET_PATH_STATUSFLAGS = "Status Flags";
     public const string ASSET_PATH_SKILLS = "Skills";
     public const string ASSET_PATH_CROWDCONTROLS = "Crowd Control Types";
     public const string ASSET_PATH_DAMAGETYPES = "Damage Types";
+    public const string ASSET_PATH_GEAR = "Gear";
 
     //core damage scaling
     public const string PHYSICAL_SCALE_STAT = "core_scale_physical";

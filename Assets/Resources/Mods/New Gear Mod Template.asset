@@ -8,23 +8,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d78fdd94c4ded54b814e4defcbdc40c, type: 3}
-  m_Name: Test1
+  m_Script: {fileID: 11500000, guid: a457cc3f56b33f8488116ab94f1a4765, type: 3}
+  m_Name: New Gear Mod Template
   m_EditorClassIdentifier: 
-  NameExternal: Giant's
+  NameExternal: Healthy
   AffixSlot: 0
   Hidden: 0
+  ModIsDisabled: 0
   StatChanges:
   - AffectedStat: {fileID: 11400000, guid: acb988d68da2e6140b0540a1159f5b24, type: 2}
     ChangeType: 0
-    MinValue: 5
+    MinValue: 10
     MaxValue: 10
     Precision: 1
-  - AffectedStat: {fileID: 11400000, guid: c0b49effc809b0840affe104392c91ea, type: 2}
-    ChangeType: 2
-    MinValue: 25
-    MaxValue: 35
-    Precision: 1
-  Flags:
-  - {fileID: 11400000, guid: ce6623c93ed8e904e9cb78bc99580fcf, type: 2}
-  ModIsDisabled: 0
+  StatusFlags: []

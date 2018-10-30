@@ -6,7 +6,6 @@ using UnityEditor;
 [System.Serializable]
 public class StatChangeTemplate
 {
-    //public string StatInternalName = "health";
     public StatTemplate AffectedStat;       //draggy-drop in Unity
     public StatChangeTypeEnum ChangeType = StatChangeTypeEnum.PLUS;
     public float MinValue = 1;
@@ -18,26 +17,19 @@ public class StatChange
 {
     //generated from template, not modified in Unity
 
-    public readonly string StatInternalName;
+    public readonly StatChangeTemplate ChangeTemplate;
     public readonly StatChangeTypeEnum ChangeType;
     public readonly float Value;
 
-    public StatChange(string statInternalName, StatChangeTypeEnum enumValue, float value)
-    {
-        StatInternalName = statInternalName;
-        ChangeType = enumValue;
-        Value = value;
-    }
     public StatChange(StatChangeTemplate template, float value)
     {
-        if (template == null)
-            StatInternalName = "Undefined Stat";
-        else
-            StatInternalName = template.AffectedStat.name;
-
+        ChangeTemplate = template;
         ChangeType = template.ChangeType;
         Value = value;
     }
+    public StatChange(StatChangeTemplate template)
+        :this(template, KTools.RandRollIncremented(template.MinValue, template.MaxValue, template.Precision))
+    { }
 }
 
 [CustomPropertyDrawer(typeof(StatChangeTemplate))]
@@ -51,8 +43,6 @@ public class PD_StatChangeTemplate : PropertyDrawer
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
-        //base.OnGUI(position, property, label);
-
         //get values
         statProp = property.FindPropertyRelative("AffectedStat");
         changeTypeProp = property.FindPropertyRelative("ChangeType");

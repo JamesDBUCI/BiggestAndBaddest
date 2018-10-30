@@ -134,28 +134,26 @@ public class DatabaseHelper<DBType> : DatabaseHelper where DBType : ScriptableOb
         return TryGetRandom((dbVal) => true, out randomValue);
     }
 
-    public bool TryGetRandom(System.Predicate<DBType> predicate, out DBType randomValue)  //where the asset matches the predicate
+    public bool TryGetRandom(System.Predicate<DBType> predicate, out DBType randomAsset)  //where the asset matches the predicate
     {
         //get a random value from subset of all values matching the predicate
-        List<DBType> found;
-        if (TryGetRandomFromSubset(_database.ToList().Where(kvp => predicate(kvp.Value)).ToList(), out found))
+        randomAsset = null;
+
+        List<DBType> foundAssets;
+        if (TryGetRandom(predicate, out foundAssets))
         {
-            randomValue = found[0]; //first element in a list guaranteed to have exactly 1 item.
+            randomAsset = foundAssets[0]; //first element in a list guaranteed to have exactly 1 item.
             return true;
         }
-        else
-        {
-            randomValue = null;
-            return false;
-        }
+        return false;
     }
-    public bool TryGetRandom(System.Predicate<DBType> predicate, out List<DBType> randomValues, int count = 1)
+    public bool TryGetRandom(System.Predicate<DBType> predicate, out List<DBType> randomAssets, int count = 1)
     {
         //prepare a subset of values which match the predicate, then pass to the method below
-        return TryGetRandomFromSubset(_database.ToList().Where(kvp => predicate(kvp.Value)).ToList(), out randomValues, count);
+        return TryGetRandomFromSubset(_database.Values.ToList().Where(asset => predicate(asset)).ToList(), out randomAssets, count);
     }
 
-    protected bool TryGetRandomFromSubset(List<KeyValuePair<string, DBType>> subset, out List<DBType> randomValues, int count = 1)
+    protected bool TryGetRandomFromSubset(List<DBType> subset, out List<DBType> randomValues, int count = 1)
     {
         randomValues = new List<DBType>();
 
@@ -175,7 +173,7 @@ public class DatabaseHelper<DBType> : DatabaseHelper where DBType : ScriptableOb
                 int roll = Random.Range(0, subset.Count()); //max exclusive
 
                 //add it to the list of selected values
-                randomValues.Add(subset.ElementAt(roll).Value);
+                randomValues.Add(subset.ElementAt(roll));
 
                 //remove it from the list of choices
                 subset.RemoveAt(roll);

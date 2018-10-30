@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class Actor : MonoBehaviour, IModdable
+public class Actor : MonoBehaviour
 {
     //events
     [HideInInspector] public UnityEventFloat onActorMove = new UnityEventFloat();
@@ -14,12 +14,6 @@ public class Actor : MonoBehaviour, IModdable
     public float RotationSpeed;
     public float MovementSpeed;
     public CombatController CombatController { get; private set; }
-
-    protected ModManager _modController = new ModManager();
-    public ModManager GetModController()
-    {
-        return _modController;
-    }
 
     protected Rigidbody2D rb;
 

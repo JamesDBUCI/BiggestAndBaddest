@@ -3,26 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class ModManager
+public abstract class ModManager
 {
     //handles all interaction with a moddable thing's mods
     //an IModdable must have one of these (or be able to procure one upon request)
 
     //internal managed list of mod instances (these have been rolled)
-    private List<IMod> _mods = new List<IMod>();
+    protected List<ModController> _mods = new List<ModController>();
 
-    public void AddModFromTemplate(ModTemplate template)
-    {
-        //roll a new mod instance and add it
-        AddExactMod(ModServices.CreateMod(template));
-    }
-    public void AddExactMod(IMod mod)
-    {
-        //add a mod
-        //validity checks are left to ModServices
-
-        _mods.Add(mod);
-    }
     public void RerollMod(ModTemplate template)
     {
         //reroll the values of a mod
@@ -30,29 +18,29 @@ public class ModManager
         if (!HasMod(template))          //if it has it
             return;
 
-        RemoveMod(template);            //remove it
-        AddModFromTemplate(template);   //add a new one
+        FindMod(template).RollValues();
+    }
+    public void RerollModsWhere(System.Predicate<ModController> predicate)
+    {
+        _mods.Where(m => predicate(m)).ToList().ForEach(m => m.RollValues());
+    }
+    public void RerollAllMods()
+    {
+        RerollModsWhere(m => true);
     }
     public void RemoveMod(ModTemplate template)
     {
-        //remove a mod
-        if (!HasMod(template))          //if it has it
-            return;
-
-        _mods.RemoveAll(m => m.GetNameInternal() == template.name);     //remove all mods that match
+        _mods.RemoveAll(m => m.Template == template);     //remove all mods that match
     }
-    private IMod FindMod(ModTemplate template)
+    private ModController FindMod(ModTemplate template)
     {
         //internal method for finding mods that come from a template
-        return _mods.Find(m => m.GetNameInternal() == template.name);
+        return _mods.Find(m => m.Template == template);
     }
     public bool HasMod(ModTemplate template)
     {
         //does this mod controller have a mod with this template
-        IMod foundMod = FindMod(template);
-        if (foundMod != null)
-            return true;
-        return false;
+        return _mods.Exists(m => m.Template == template);
     }
     public int CountMods()
     {
@@ -61,12 +49,15 @@ public class ModManager
     public int CountMods(AffixSlotEnum withAffix)
     {
         //make predicate for comparing affix slot, then pass to method below
-        return CountMods(m => m.GetAffixSlot() == withAffix);
+        AffixSlot affix;
+        if (!AffixSlot.TryGet(withAffix, out affix))
+            return 0;
+        return CountMods(m => m.Affix == affix);
     }
-    public int CountMods(System.Func<IMod, bool> predicate)
+    public int CountMods(System.Predicate<ModController> predicate)
     {
         //return number of mods which match predicate
-        return _mods.Where(predicate).Count();
+        return _mods.Where(m => predicate(m)).Count();
     }
 
     public string GetModifiedName(string baseName)
@@ -75,29 +66,23 @@ public class ModManager
         string returnString = baseName;
 
         //iterate all mods in list
-        foreach (IMod mod in _mods)
+        foreach (ModController mod in _mods)
         {
-            //grab a handle for affix slot meta data
-            AffixSlot affix;
-            if (!AffixSlot.TryGet(mod.GetAffixSlot(), out affix))
-                continue;
-
             //each mod will modify the name by accessing the pattern prescribed by the AffixSlot it's using
             //implicits and uniques will do nothing, prefixes and suffixes will apply changes
-            returnString = affix.ModifyName(returnString, mod.GetNameExternal());
+            returnString = mod.Affix.ModifyName(returnString, mod.NameExternal);
         }
         return returnString;
     }
-
-    public List<ModDescription> GetAllModDescriptions()
+}
+public abstract class ModManager<TemplateType, ControllerType> : ModManager where TemplateType : ModTemplate where ControllerType : ModController<TemplateType>
+{
+    public abstract void AddModFromTemplate(TemplateType template);
+    public void AddExactMod(ControllerType mod)
     {
-        //Debug.Log("Hello from class ModController.");
-        List<ModDescription> modDescriptions = new List<ModDescription>();
-        foreach (ModController m in _mods)
-        {
-            modDescriptions.Add(m.GetDescription());
-        }
+        //add a mod
+        //validity checks are left to you
 
-        return modDescriptions;
+        _mods.Add(mod);
     }
 }
