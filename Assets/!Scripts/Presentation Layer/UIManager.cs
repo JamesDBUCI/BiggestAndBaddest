@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    public SkillSlotController SlotController1;
-    public SkillSlotController SlotController2;
-    public SkillLockBar SkillLockBar;
-    public ChannelBar ChannelBar;
+    public UISkillSlot SkillSlotPrefab;
+    public Transform SkillSlotPanel;
+    private List<UISkillSlot> _activeSlots = new List<UISkillSlot>();
+    
+    public UISkillLockBar SkillLockBar;
+    public UIChannelBar ChannelBar;
 
     private void Awake()
     {
@@ -16,23 +18,28 @@ public class UIManager : MonoBehaviour
         else
             Destroy(gameObject);
     }
-
-    private void Start()
+    public void NewSkillSlot(string buttonName, SkillController assignedController)
     {
-        
+        UISkillSlot newSlot = Instantiate(SkillSlotPrefab, SkillSlotPanel);
+        newSlot.SetButton(buttonName);
+        newSlot.SetSkill(assignedController);
+
+        _activeSlots.Add(newSlot);
     }
+
     public void TestSetup()
     {
-        SlotController1.SetButton("Left-Click");
-        SlotController2.SetButton("Right-Click");
-
+        string[] dummyInputButtonNames = new string[] { "Left-click", "Right-click", "1", "2", "3", "4", "5" };
         if (Game.Self.Player != null)
         {
-            SlotController1.SetSkill(Game.Self.Player.CombatController.Skills.GetSkillInSlot(0));
-            SlotController2.SetSkill(Game.Self.Player.CombatController.Skills.GetSkillInSlot(1));
+            var playerSkillsList = Game.Self.Player.CombatController.Skills.GetAllSkillsAndSlotIndexes();
+            foreach (var playerSkill in playerSkillsList)
+            {
+                NewSkillSlot(dummyInputButtonNames[playerSkill.Value1], playerSkill.Value2);
+            }
 
-            SkillLockBar.SetNewActor(Game.Self.Player);
-            ChannelBar.SetNewActor(Game.Self.Player);
+            SkillLockBar.AssignActor(Game.Self.Player);
+            ChannelBar.AssignActor(Game.Self.Player);
         }
     }
 }

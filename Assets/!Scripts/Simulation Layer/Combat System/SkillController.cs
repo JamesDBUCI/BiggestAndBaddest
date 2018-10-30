@@ -12,18 +12,19 @@ public class SkillController
     public Skill Skill { get; private set; }        //make a new SkillController if you want a new skill.
     public bool Enabled { get; set; }
 
-    public CombatTimer Cooldown { get; private set; }
+    private CombatTimer _cooldownTimer = null;
     public bool IsOnCooldown
     {
         get
         {
-            if (Cooldown != null)
+            if (_cooldownTimer != null)
             {
-                return Cooldown.InProgress;
+                return _cooldownTimer.InProgress;
             }
             return false;
         }
     }
+    public TimerInfo CooldownTimerInfo { get { return IsOnCooldown ? new TimerInfo(_cooldownTimer) : new TimerInfo(); } }
 
     //ctor
     public SkillController(Actor parent, Skill skill)
@@ -97,13 +98,13 @@ public class SkillController
         float adjustedCooldownDuration = ParentActor.CombatController.GetAdjustedCooldownDuration(Skill.CooldownInfo.CooldownDuration);
         if (adjustedCooldownDuration > 0)
         {
-            Cooldown = new CombatTimer(ParentActor, adjustedCooldownDuration);
+            _cooldownTimer = new CombatTimer(ParentActor, adjustedCooldownDuration);
             return true;
         }
         return false;
     }
 
-    private DamagePacket GetPhaseDamagePacket(SkillPhase phase, List<Stat> calculatedStats)
+    private DamagePacket GetPhaseDamagePacket(SkillPhase phase, List<StatController> calculatedStats)
     {
         //with precalculated Stats
         return CombatServices.ConstructDamagePacket(ParentActor, calculatedStats, phase);
@@ -130,7 +131,7 @@ public class SkillController
     {
         ApplyAttackEffects(phase, targets, ParentActor.CombatController.Stats.CalculateCurrentStatValues());
     }
-    public void ApplyAttackEffects(SkillPhaseTimingEnum phase, List<Actor> targets, List<Stat> precalculatedStatSet)
+    public void ApplyAttackEffects(SkillPhaseTimingEnum phase, List<Actor> targets, List<StatController> precalculatedStatSet)
     {
         if (targets == null)
             return;

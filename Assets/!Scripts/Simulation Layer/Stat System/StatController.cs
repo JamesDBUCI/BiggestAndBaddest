@@ -1,137 +1,57 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class StatController
 {
-    protected List<Stat> _baseStats = new List<Stat>();
-    protected List<StatFlag> _flags = new List<StatFlag>();
-    protected List<StatChange> _statChanges = new List<StatChange>();
+    //instance of a StatTemplate
+
+    public readonly StatTemplate Template;
+    public float Value { get; protected set; }
 
     //ctor
-    public StatController()
+    public StatController(StatTemplate template)
+        : this(template, template.DefaultValue) { }
+
+    public StatController(StatTemplate template, float value)
     {
-        //write a default copy of every stat in the database
-        GameDatabase.Stats.GetAllAssets().ForEach(st => _baseStats.Add(new Stat(st)));
+        Template = template;
+        SetValue(value);
     }
 
-    //general functions
-    public void SetWithCombatClass(CombatClass combatClass, int level, bool resetAllFlagsAndChanges = true)
+    //functions
+    public void ChangeValue(float valueDelta)
     {
-        foreach (CombatClassStatTemplate classStatTemplate in combatClass.Stats)
-        {
-            StatTemplate foundTemplate;
-            if (!GameDatabase.Stats.TryFind(classStatTemplate.InternalName, out foundTemplate))
-            {
-                Debug.LogError(string.Format("{0}(CombatClass) calls for stat not found in database ({1})", combatClass.name, classStatTemplate.InternalName));
-            }
+        Value += valueDelta;
+        LegalizeValue();
+    }
+    public void SetValue(float newValue)
+    {
+        Value = newValue;
+        LegalizeValue();
+    }
+    public void LegalizeValue()
+    {
+        Value = GetLegalizedValue(Template, Value);
+    }
+    public static float GetLegalizedValue(StatTemplate template, float originalValue)
+    {
+        //make the value conform to templates min, max, and precision specifications
 
-            Stat foundStat = FindStat(foundTemplate);
-            foundStat.SetValue(classStatTemplate.BaseValue);
-            foundStat.ChangeValue(classStatTemplate.ValuePerLevel * level);            
-        }
-    }
+        //if precision is not provided, make the value integral
+        float precision = template.Precision.Enabled ? template.Precision.Value : 1;
 
-    //stat functions
-    protected Stat FindStat(StatTemplate template)
-    {
-        return _baseStats.Find(s => s.Template == template);
-    }
-    public float GetBaseStatValue(StatTemplate template)
-    {
-        return FindStat(template).Value;
-    }
-    public void ChangeBaseStatValue(StatTemplate template, float valueDelta)
-    {
-        FindStat(template).ChangeValue(valueDelta);
-    }
-    public void SetBaseStatValue(StatTemplate template, float newValue)
-    {
-        FindStat(template).SetValue(newValue);
-    }
+        //round to nearest precision level
+        originalValue = Mathf.Round(originalValue / precision) * precision;
 
-    public float CalculateCurrentStatValue(string internalName)
-    {
-        StatTemplate foundStat;
-        if (!GameDatabase.Stats.TryFind(internalName, out foundStat))
-            return 0;
+        //raise to minimum
+        if (template.MinValue.Enabled)
+            originalValue = Mathf.Max(originalValue, template.MinValue.Value);
 
-        return CalculateCurrentStatValue(foundStat);
-    }
-    public float CalculateCurrentStatValue(StatTemplate template)
-    {
-        List<StatChange> changesForThisStat = _statChanges.Where(change => change.StatInternalName == template.name).ToList();
+        //lower to maximum
+        if (template.MaxValue.Enabled)
+            originalValue = Mathf.Min(originalValue, template.MaxValue.Value);
 
-        float calculatedValue = GameMath.CalculateStatWithChanges(GetBaseStatValue(template), changesForThisStat);
-
-        return Stat.GetLegalizedValue(template, calculatedValue);
+        return originalValue;
     }
-    public List<Stat> CalculateCurrentStatValues()
-    {
-        List<Stat> statSet = new List<Stat>();
-        foreach (Stat stat in _baseStats)
-        {
-            Stat newStat = new Stat(stat.Template);     //new, blank stat
-            newStat.SetValue(CalculateCurrentStatValue(stat.Template));     //fill base value with current stat value
-
-            statSet.Add(newStat);   //add it to the list
-        }
-        return statSet;
-    }
-
-    //flag functions
-    public bool AddFlag(StatFlag newFlag)
-    {
-        if (_flags.Contains(newFlag))
-            return false;
-
-        _flags.Add(newFlag);
-        return true;
-    }
-    public bool RemoveFlag(StatFlag newFlag)
-    {
-        //naturally returns false if none was found
-        return _flags.Remove(newFlag);
-    }
-    public bool CheckFlag(StatFlag newFlag)
-    {
-        return _flags.Contains(newFlag);
-    }
-
-    //stat change functions
-    public void AddStatChange(StatChange newChange)
-    {
-        _statChanges.Add(newChange);
-    }
-    public void AddStatChanges(List<StatChange> newChanges)
-    {
-        _statChanges.AddRange(newChanges);
-    }
-    public bool RemoveStatChange(StatChange change)
-    {
-        return _statChanges.Remove(change);
-    }
-    public bool RemoveStatChanges(List<StatChange> changes)
-    {
-        bool allWereRemoved = true;
-        foreach (StatChange change in changes)
-        {
-            allWereRemoved = allWereRemoved && _statChanges.Remove(change);
-        }
-        return allWereRemoved;
-    }
-    protected bool HasStatChange(StatChange change)
-    {
-        return _statChanges.Contains(change);
-    }
-    public int CountStatChanges()
-    {
-        return _statChanges.Count;
-    }
-}
-
-public interface IHaveStats
-{
-    StatController GetStatController();
 }

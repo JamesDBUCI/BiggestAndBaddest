@@ -8,15 +8,15 @@ public enum CoreDamageTypeEnum
 }
 public static class CombatServices
 {
-    public static float GetStatValueFromSet(StatTemplate stat, List<Stat> set)
+    public static float GetStatValueFromSet(StatTemplate stat, List<StatController> set)
     {
-        Stat foundStat = set.Find(setStat => setStat.Template == stat);
+        StatController foundStat = set.Find(setStat => setStat.Template == stat);
         if (foundStat == null)
             return 0;
 
         return foundStat.Value;
     }
-    public static DamagePacket ConstructDamagePacket(Actor origin, List<Stat> CalculatedStatSet, SkillPhase phase)
+    public static DamagePacket ConstructDamagePacket(Actor origin, List<StatController> CalculatedStatSet, SkillPhase phase)
     {
         //this overload assumes you have the stats you want to use for calculation
         //(either because it was delayed damage, or you just got them from the other overload)
@@ -51,7 +51,7 @@ public static class CombatServices
     public static void TakeDamagePacket(Actor combatant, DamagePacket damage)
     {
         //grab a handle
-        StatController sc = combatant.CombatController.Stats;
+        StatManager sc = combatant.CombatController.Stats;
 
         //iterate all type nodes of incoming damage
         float totalDamageAfterMitigation = 0;
@@ -161,7 +161,7 @@ public static class CombatServices
         //Mathf.Min, or Mathf.Max, really
         return selectionFunction(PhysResistValue, MageResistValue);
     }
-    public static float GetMaxHP(StatController sc)
+    public static float GetMaxHP(StatManager sc)
     {
         return GameMath.CalculateMaxHP(sc.CalculateCurrentStatValue(Const.MAXHP_SCALE_STAT));
     }

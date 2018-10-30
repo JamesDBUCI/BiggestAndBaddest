@@ -12,7 +12,7 @@ public static class ModServices
     public static bool ApplyNewRandomMod(IModdable moddable)
     {
         //grab a handle
-        ModController mc = moddable.GetModController();
+        ModManager mc = moddable.GetModController();
         if (mc == null)
             return false;
 
@@ -38,7 +38,7 @@ public static class ModServices
         mc.AddModFromTemplate(selectedModTemplate);
         return true;
     }
-    private static bool ModTemplateViabilityPredicate(ModController mc, ModTemplate template)
+    private static bool ModTemplateViabilityPredicate(ModManager mc, ModTemplate template)
     {
         //could have done this with a System.Predicate<>, but I like easy mode
 
@@ -62,7 +62,7 @@ public static class ModServices
         return true;
     }
 
-    public static Mod CreateMod(ModTemplate template)
+    public static ModController CreateMod(ModTemplate template)
     {
         //create a new mod instance from a template
 
@@ -82,7 +82,7 @@ public static class ModServices
         }
 
         //return a new mod instance with rolled stat changes
-        return new Mod(template, rolledChanges);
+        return new ModController(template, rolledChanges);
     }
 
     private static float RollValue(StatChangeTemplate template)
@@ -110,7 +110,7 @@ public static class ModServices
     {
         ApplyNewRandomMod(moddable);
         ApplyNewRandomMod(moddable);
-        ModController testMC = moddable.GetModController();
+        ModManager testMC = moddable.GetModController();
 
         Debug.Log("Added Mod(s) to test moddable.");
         Debug.Log("Test moddable mod count = " + testMC.CountMods());
@@ -155,5 +155,5 @@ public struct ModDescription
 
 public interface IModdable
 {
-    ModController GetModController();
+    ModManager GetModController();
 }

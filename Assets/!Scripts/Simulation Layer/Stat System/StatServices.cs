@@ -5,13 +5,13 @@ using UnityEngine;
 
 public static class StatServices
 {
-    public static Stat CreateStat(StatTemplate template)
+    public static StatController CreateStat(StatTemplate template)
     {
-        Stat newStat = new Stat(template);
+        StatController newStat = new StatController(template);
         newStat.SetValue(template.DefaultValue);
         return newStat;
     }
-    public static Stat CreateNewStatFromClassStatTemplate(CombatClassStatTemplate classStat)
+    public static StatController CreateNewStatFromClassStatTemplate(ActorClassStatTemplate classStat)
     {
         if (string.IsNullOrEmpty(classStat.InternalName))
             return null;
@@ -20,6 +20,6 @@ public static class StatServices
         if (!GameDatabase.Stats.TryFind(classStat.InternalName, out foundTemplate))
             return null;
 
-        return new Stat(foundTemplate, classStat.BaseValue);
+        return new StatController(foundTemplate, classStat.BaseValue);
     }
 }

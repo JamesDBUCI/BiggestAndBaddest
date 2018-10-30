@@ -7,9 +7,9 @@ public class ProjectileController : MonoBehaviour
 {
     public float Speed;
     private SkillController _skillController;    //holds the method we'll call to enact the skill phase
-    private List<Stat> _statSnapshot;   //holds the stats of the attacker at time of firing
+    private List<StatController> _statSnapshot;   //holds the stats of the attacker at time of firing
 
-    public void Arm(SkillController skillController, List<Stat> statSnapshot)
+    public void Arm(SkillController skillController, List<StatController> statSnapshot)
     {
         _skillController = skillController;
         _statSnapshot = statSnapshot;

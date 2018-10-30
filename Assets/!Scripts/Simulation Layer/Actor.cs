@@ -15,8 +15,8 @@ public class Actor : MonoBehaviour, IModdable
     public float MovementSpeed;
     public CombatController CombatController { get; private set; }
 
-    protected ModController _modController = new ModController();
-    public ModController GetModController()
+    protected ModManager _modController = new ModManager();
+    public ModManager GetModController()
     {
         return _modController;
     }
@@ -47,7 +47,7 @@ public class Actor : MonoBehaviour, IModdable
         if (!anInvoluntaryMovement)
         {
             //check for CC
-            CrowdControlController ccc = CombatController.CrowdControl;
+            CrowdControlManager ccc = CombatController.CrowdControl;
 
             if (ccc.MovementDisabled)
                 return;

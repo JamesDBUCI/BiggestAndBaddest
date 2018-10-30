@@ -13,9 +13,8 @@ public class Game : MonoBehaviour
     public Actor TestBoss { get; private set; }
 
     public Actor PlayerPrefab;
-    public CombatClass PlayerClass;
-    public Skill TestPlayerSkill0;
-    public Skill TestPlayerSkill1;
+    public ActorClass PlayerClass;
+    public List<Skill> TestPlayerSkills;
     public Actor Player { get; private set; }
 
     public Boundary PlayableArea;
@@ -43,13 +42,15 @@ public class Game : MonoBehaviour
     public void TestSpawnPlayerCharacter()
     {
         Actor playerActor = SpawnActor(PlayerPrefab, PlayerClass, new Vector2(-2, -2));
-        playerActor.CombatController.Skills.AddSkill(0, TestPlayerSkill0);
-        playerActor.CombatController.Skills.AddSkill(1, TestPlayerSkill1);
+        for (int i = 0; i < TestPlayerSkills.Count; i++)
+        {
+            playerActor.CombatController.Skills.SetSkillSlot(i, TestPlayerSkills[i]);
+        }
         //playerActor.CombatController.CrowdControl.AddCC("crunk", 200);
 
         Player = playerActor;
     }
-    public Actor SpawnActor(Actor prefab, CombatClass combatClass, Vector2 location)
+    public Actor SpawnActor(Actor prefab, ActorClass combatClass, Vector2 location)
     {
         if (prefab == null)
         {

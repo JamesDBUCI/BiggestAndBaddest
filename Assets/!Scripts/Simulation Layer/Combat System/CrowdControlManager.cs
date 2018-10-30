@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.Events;
 
-public class CrowdControlController
+public class CrowdControlManager
 {
     public Actor ParentActor { get; private set; }
     public bool HasAny
@@ -40,7 +40,7 @@ public class CrowdControlController
         if (cc.Duration <= 0)
             return false;
 
-        StatController actorStats = ParentActor.CombatController.Stats;
+        StatManager actorStats = ParentActor.CombatController.Stats;
 
         //dynamic cc reduction
         float ccDuration = cc.Duration;
@@ -60,7 +60,7 @@ public class CrowdControlController
         timerHander = null;
 
         CrowdControlTemplate foundCC;
-        if (!GameDatabase.CrowdControl.TryFind(internalName, out foundCC))
+        if (!GameDatabase.CrowdControls.TryFind(internalName, out foundCC))
             return false;
 
         return TryAddCC(new CrowdControl(foundCC, duration), out timerHander);
@@ -171,7 +171,7 @@ public class CrowdControlController
         _allCC.RemoveAll(cct => !cct.InProgress);
     }
 
-    public CrowdControlController(Actor parent)
+    public CrowdControlManager(Actor parent)
     {
         ParentActor = parent;
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SkillSlotController : MonoBehaviour
+public class UISkillSlot : MonoBehaviour
 {
     SkillController _representedSkill = null;
 
@@ -45,7 +45,7 @@ public class SkillSlotController : MonoBehaviour
     public void GetCooldownProgress()
     {
         if (_representedSkill.IsOnCooldown)
-            CooldownOverlay.fillAmount = 1 - _representedSkill.Cooldown.ProgressNormalized;        //opposite value for visuals only
+            CooldownOverlay.fillAmount = 1 - _representedSkill.CooldownTimerInfo.ProgressNormalized;        //opposite value for visuals only
         else
             CooldownOverlay.fillAmount = 0;
         //can use CooldownDuration.ProgressExact if we want to show a seconds timer.

@@ -5,31 +5,27 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class DatabaseHelper<DBType> where DBType : ScriptableObject
+[System.Serializable] public class UnityEventDatabaseHelper : UnityEvent<DatabaseHelper> { }
+public abstract class DatabaseHelper
 {
-    //Helper class for managing and querying collections of ScriptableObjects (i.e. ModTemplates)
-
-    protected Dictionary<string, DBType> _database = new Dictionary<string, DBType>();      //actual database of assets
     protected readonly string _path;           //where below the resources folder are these assets located?
     protected readonly string _assetTypeName;  //for debug log, what kind of assets are these?
 
     //events
-    public UnityEventDatabaseHelper onCreated = new UnityEventDatabaseHelper();
     public UnityEvent onStartLoad = new UnityEvent();
     public UnityEventInt onSuccessfulLoad = new UnityEventInt();
     public UnityEventString onFailedLoad = new UnityEventString();
     public UnityEventString onFailedToLocateAsset = new UnityEventString();
 
     //constructor
-    public DatabaseHelper(string path, string assetTypeName)
+    public DatabaseHelper(string path, string assetTypeName, List<DatabaseHelper> containerList = null)
     {
         _path = path;
         _assetTypeName = assetTypeName;
 
-        if (onCreated != null)
-            onCreated.Invoke(this);
+        if (containerList != null)
+            containerList.Add(this);
     }
-
     //methods
     public bool Load(bool logStart = true, bool logSuccess = true)
     {
@@ -58,28 +54,47 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
                 Debug.Log("Loading " + _assetTypeName + " database: " + targetPath);
         }
 
-        //empty the current database in case we call this multiple times
-        _database.Clear();
-
-        //load all assets of specified type and add them to the dictionary (key is the ScriptableObject's Unity name in CAPS, like "MY MOD TEMPLATE 03")
-        new List<DBType>(Resources.LoadAll<DBType>(_path))
-            .ForEach(loaded => _database.Add(loaded.name.ToUpper(), loaded));
+        int count = Load_Internal();
 
         if (onSuccessfulLoad != null)
-            onSuccessfulLoad.Invoke(_database.Count);
+            onSuccessfulLoad.Invoke(count);
 
         //declare database count
         if (logSuccess)
         {
             //if the database is empty, then why do we even have it? something must have gone wrong.
-            if (_database.Count == 0)
+            if (count == 0)
                 Debug.Log(string.Format("{0} database was successfully loaded, but is empty.", _assetTypeName));
             else
-                Debug.Log(string.Format("Just loaded all {0} asset(s) in {1} database.", _database.Count, _assetTypeName));
+                Debug.Log(string.Format("Just loaded all {0} asset(s) in {1} database.", count, _assetTypeName));
         }
 
         //everything went right, return true
         return true;
+    }
+    protected abstract int Load_Internal();  //return database.Count
+}
+public class DatabaseHelper<DBType> : DatabaseHelper where DBType : ScriptableObject
+{
+    //Helper class for managing and querying collections of ScriptableObjects (i.e. ModTemplates)
+
+    protected Dictionary<string, DBType> _database = new Dictionary<string, DBType>();      //actual database of assets
+
+    public DatabaseHelper(string path, string assetTypeName, List<DatabaseHelper> containerList = null) :base(path, assetTypeName, containerList) { }
+
+    protected override int Load_Internal()   //return database.Count
+    {
+        //empty the current database in case we call this multiple times
+        _database.Clear();
+
+        //load all assets of specified type and add them to the dictionary (key is the ScriptableObject's Unity name in CAPS, like "MY MOD TEMPLATE 03")
+        var foundAssets = new List<DBType>(Resources.LoadAll<DBType>(_path));
+        int count = foundAssets.Count;
+        if (count == 0)
+            return count;
+
+        foundAssets.ForEach(loaded => _database.Add(loaded.name.ToUpper(), loaded));
+        return count;
     }
     public bool TryFind(string identifierString, out DBType foundAsset)
     {
@@ -177,6 +192,4 @@ public class DatabaseHelper<DBType> where DBType : ScriptableObject
     {
         return _database.Values.ToList();
     }
-
-    [System.Serializable] public class UnityEventDatabaseHelper : UnityEvent<DatabaseHelper<DBType>> { }
 }

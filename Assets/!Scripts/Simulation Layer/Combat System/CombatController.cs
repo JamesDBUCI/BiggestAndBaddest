@@ -8,13 +8,13 @@ public class CombatController
     public Actor ParentActor { get; private set; }
 
     //core subsystems
-    public StatController Stats { get; private set; }
+    public StatManager Stats { get; private set; }
     public SkillManager Skills { get; private set; }
-    public CrowdControlController CrowdControl { get; private set; }
+    public CrowdControlManager CrowdControl { get; private set; }
 
     //secondary subsystems
     public int Level { get; private set; }
-    public CombatClass CurrentClass { get; private set; }
+    public ActorClass CurrentClass { get; private set; }
 
     //ctor
     public CombatController(Actor parent)
@@ -26,25 +26,28 @@ public class CombatController
      *      Skill-lock
      * 
      */
-    public SkillLockTimer SkillLock = null;
+    private SkillLockTimer _skillLock = null;
     public bool HasSkillLock
     {
         get
         {
-            if (SkillLock != null)
+            if (_skillLock != null)
             {
-                if (SkillLock.InProgress)
+                if (_skillLock.InProgress)
                     return true;
             }
             return false;
         }
     }
+    //returns data about the current skill lock timer, if there is one
+    public TimerInfo SkillLockInfo { get { return HasSkillLock ? new TimerInfo(_skillLock) : new TimerInfo(); } }
+
     public bool SetSkillLock(SkillController skill)       //returns true if Skill-lock was engaged
     {
         var skillLockInfo = skill.Skill.SkillLockInfo;
         float adjustedDuration = GetAdjustedSkillLockDuration(skillLockInfo.SkillLockDuration);
 
-        SkillLock = new SkillLockTimer(ParentActor, adjustedDuration);
+        _skillLock = new SkillLockTimer(ParentActor, adjustedDuration);
         return true;
     }
     public bool CancelSkillLock()       //returns true if Skill-lock was canceled
@@ -52,7 +55,7 @@ public class CombatController
         if (!HasSkillLock)      //nop
             return false;
 
-        SkillLock.Cancel();
+        _skillLock.Cancel();
         return true;
     }
 
@@ -61,19 +64,21 @@ public class CombatController
      * 
      */
     
-    public ChannelingTimer Channeling = null;
+    private ChannelingTimer _channeling = null;
     public bool IsChanneling
     {
         get
         {
-            if (Channeling != null)
+            if (_channeling != null)
             {
-                if (Channeling.InProgress)
+                if (_channeling.InProgress)
                     return true;
             }
             return false;
         }
     }
+    //returns data about the current channeling timer, if there is one
+    public ChannelingInfo ChannelingInfo { get { return IsChanneling ? new ChannelingInfo(_channeling) : new ChannelingInfo(); } }
 
     public bool StartChanneling(SkillController channeledSkill)     //returns true if a new channel was started
     {
@@ -94,7 +99,8 @@ public class CombatController
         float adjustedChannelDuration = GetAdjustedChannelDuration(channelDuration);
 
         //start the channel
-        Channeling = new ChannelingTimer(ParentActor, adjustedChannelDuration, channeledSkill);
+        _channeling = new ChannelingTimer(ParentActor, adjustedChannelDuration, channeledSkill);
+        _channeling.onTimerCancel.AddListener(() => CancelSkillLock());
         return true;
     }
     public bool InterruptChanneling(bool bypassInterruptEffects = false, Actor interruptor = null)     //returns true if a channel was interrupted
@@ -102,14 +108,14 @@ public class CombatController
         if (!IsChanneling)      //hmm? what channeling?
             return false;
 
-        return Channeling.Interrupt(bypassInterruptEffects, interruptor);
+        return _channeling.Interrupt(bypassInterruptEffects, interruptor);
     }
     public bool CancelChanneling()
     {
         if (!IsChanneling)      //hmm? what channeling?
             return false;
 
-        Channeling.Cancel();
+        _channeling.Cancel();
         return true;
     }
 
@@ -175,9 +181,9 @@ public class CombatController
     public void Init()
     {
         //called after the first Awake() calls. most of these need fully-initialized databases to not crash.
-        Stats = new StatController();
+        Stats = new StatManager();
         Skills = new SkillManager(ParentActor);
-        CrowdControl = new CrowdControlController(ParentActor);
+        CrowdControl = new CrowdControlManager(ParentActor);
     }
     public bool LevelUp(int numberOfLevels, bool resetAllFlagsAndChanges = false)
     {
@@ -190,7 +196,7 @@ public class CombatController
         //animation trigger? maybe even pass in an animation
         return true;
     }
-    public bool ChangeClass(CombatClass newClass, bool resetAllFlagsAndChanges)
+    public bool ChangeClass(ActorClass newClass, bool resetAllFlagsAndChanges)
     {
         CurrentClass = newClass;
 

@@ -18,7 +18,7 @@ public class PlayerMover : MonoBehaviour
         Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         float angleToCursor = Vector2.SignedAngle(_parent.AimTransform.up, worldMousePos - _parent.AimTransform.position);
-        Debug.Log(angleToCursor);
+        //Debug.Log(angleToCursor);
 
         _parent.RotateAim(angleToCursor);
 

@@ -14,13 +14,18 @@ public class PlayerShooter : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetButton("Fire1"))
+        if (Input.GetMouseButtonDown(0))
         {
             _parentActor.CombatController.Skills.TryUse(0);
+                
         }
-        if (Input.GetButton("Fire2"))
+        if (Input.GetMouseButtonDown(1))
         {
             _parentActor.CombatController.Skills.TryUse(1);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            _parentActor.CombatController.Skills.TryUse(2);
         }
     }
 }

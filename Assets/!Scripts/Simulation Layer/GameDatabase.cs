@@ -6,33 +6,27 @@ public static class GameDatabase
 {
     //holds references to all asset databases
 
-    public static DatabaseHelper<ModTemplate> Mods = new DatabaseHelper<ModTemplate>("ModTemplates", "Mod Template");
-    public static DatabaseHelper<Skill> Skills = new DatabaseHelper<Skill>("Skills", "Skill");
-    public static DatabaseHelper<CombatClass> Classes = new DatabaseHelper<CombatClass>("Classes", "Combat Class");
-    public static DatabaseHelper<CrowdControlTemplate> CrowdControl = new DatabaseHelper<CrowdControlTemplate>("Crowd Control", "Crowd Control");
-    public static DatabaseHelper<StatTemplate> Stats = new DatabaseHelper<StatTemplate>("Stats", "Combat Stat");
-    public static DatabaseHelper<StatFlag> StatusFlags = new DatabaseHelper<StatFlag>("Flags", "Stat Flag");
+    //database lisst
+    private static List<DatabaseHelper> _allDBs = new List<DatabaseHelper>();
+
+    public static DatabaseHelper<ModTemplate> Mods = new DatabaseHelper<ModTemplate>(Const.ASSET_PATH_MODS, "Gear Mod", _allDBs);
+    public static DatabaseHelper<Skill> Skills = new DatabaseHelper<Skill>(Const.ASSET_PATH_SKILLS, "Skill", _allDBs);
+    public static DatabaseHelper<ActorClass> Classes = new DatabaseHelper<ActorClass>(Const.ASSET_PATH_CLASSES, "Actor Class", _allDBs);
+    public static DatabaseHelper<CrowdControlTemplate> CrowdControls = new DatabaseHelper<CrowdControlTemplate>(Const.ASSET_PATH_CROWDCONTROLS, "Crowd Control Type", _allDBs);
+    public static DatabaseHelper<StatTemplate> Stats = new DatabaseHelper<StatTemplate>(Const.ASSET_PATH_STATS, "Stat", _allDBs);
+    public static DatabaseHelper<StatFlag> StatusFlags = new DatabaseHelper<StatFlag>(Const.ASSET_PATH_STATUSFLAGS, "Status Flag", _allDBs);
+    public static DatabaseHelper<DamageType> DamageTypes = new DatabaseHelper<DamageType>(Const.ASSET_PATH_DAMAGETYPES, "Damage Type", _allDBs);
 
     public static bool Load(bool announceStart = true, bool announceSuccess = true)
     {
-        if (!Mods.Load(announceStart, announceSuccess))
-            return false;
-
-        if (!Skills.Load(announceStart, announceSuccess))
-            return false;
-
-        if (!Classes.Load(announceStart, announceSuccess))
-            return false;
-
-        if (!CrowdControl.Load(announceStart, announceSuccess))
-            return false;
-
-        if (!Stats.Load(announceStart, announceSuccess))
-            return false;
-
-        if (!StatusFlags.Load(announceStart, announceSuccess))
-            return false;
-
+        bool loadedAll = true;
+        foreach(DatabaseHelper dbh in _allDBs)
+        {
+            if (!dbh.Load(announceStart, announceSuccess))
+            {
+                loadedAll = false;
+            }
+        }
         return true;
     }
 }

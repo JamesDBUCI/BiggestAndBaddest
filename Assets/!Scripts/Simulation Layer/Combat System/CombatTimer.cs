@@ -7,6 +7,11 @@ public class CombatTimer
 {
     //things like Skill-lock and Channeling use this functionality
 
+    public static TimerInfo GetInfoOrEmpty(CombatTimer timer)
+    {
+        return timer != null ? new TimerInfo(timer) : new TimerInfo();
+    }
+
     //the actor this timer applies to (and who is running the actual timer coroutine)
     readonly protected Actor _parent;
 
@@ -127,10 +132,15 @@ public class CombatTimer
 
 public class ChannelingTimer : CombatTimer
 {
-    public CrowdControlTimer CCTimer { get; private set; }
-    public SkillLockTimer LinkedSkillLock { get; private set; }
+    public static ChannelingInfo GetInfoOrEmpty(ChannelingTimer timer)
+    {
+        return timer != null ? new ChannelingInfo(timer) : new ChannelingInfo();
+    }
+
+    public CrowdControlTimer LinkedCCTimer { get; private set; }
     public bool MovingCancelsChannel { get; private set; }
     public bool EnemiesCanInterrupt { get; private set; }
+    public string SkillName { get; private set; }
 
     public ChannelingTimer(Actor parent, float duration, SkillController channeledSkill)
         : base(parent, duration)
@@ -152,11 +162,11 @@ public class ChannelingTimer : CombatTimer
             }
         }
 
-        LinkedSkillLock = parent.CombatController.SkillLock;
-
         MovingCancelsChannel = channelInfo.MovingCancelsChannel;
 
         EnemiesCanInterrupt = channelInfo.EnemiesCanInterrupt;
+
+        SkillName = channeledSkill.Skill.ExternalName;
 
         //when the channel is complete, apply any after-channel effects, then fire off the skill we're channeling
         UnityAction channelCompleteAction =
@@ -164,15 +174,12 @@ public class ChannelingTimer : CombatTimer
                 channeledSkill.Use();
             };
 
-        //if this channel is cancelled (or interrupted), so is the skill-lock (animation)
-        UnityAction channelCancelAction = () => { if (LinkedSkillLock != null) LinkedSkillLock.Cancel(); };
-
         //when the channel is interrupted, apply any on-channel-interrupt effects (optionally using the reference to the Actor that caused it)
         UnityAction<Actor> channelInterruptAction =
             (interruptor) => channeledSkill.ApplyAttackEffects(SkillPhaseTimingEnum.ON_CHANNEL_INTERRUPT, new List<Actor>() { interruptor });
 
         onTimerComplete.AddListener(channelCompleteAction);
-        onTimerCancel.AddListener(channelCancelAction);
+        //onTimerCancel.AddListener(channelCancelAction);
         onTimerInterrupt.AddListener(channelInterruptAction);
 
         if (MovingCancelsChannel)

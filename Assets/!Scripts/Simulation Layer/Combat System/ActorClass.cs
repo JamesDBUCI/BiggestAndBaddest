@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 
 [CreateAssetMenu(menuName = "Combat Class")]
-public class CombatClass : ScriptableObject
+public class ActorClass : ScriptableObject
 {
     //name
     public string ExternalName;
@@ -14,25 +14,25 @@ public class CombatClass : ScriptableObject
     //V.O. pack?
 
     //stats
-    public List<CombatClassStatTemplate> Stats = new List<CombatClassStatTemplate>()
+    public List<ActorClassStatTemplate> Stats = new List<ActorClassStatTemplate>()
     {
-        new CombatClassStatTemplate(Const.MAXHP_SCALE_STAT, "Constitution"),
-        new CombatClassStatTemplate(Const.PHYSICAL_SCALE_STAT, "Might"),
-        new CombatClassStatTemplate(Const.MAGIC_SCALE_STAT, "Guile"),
-        new CombatClassStatTemplate(Const.PHYSICAL_RESIST_STAT, "Armor"),
-        new CombatClassStatTemplate(Const.MAGIC_RESIST_STAT, "Spell Resistance"),
+        new ActorClassStatTemplate(Const.MAXHP_SCALE_STAT, "Constitution"),
+        new ActorClassStatTemplate(Const.PHYSICAL_SCALE_STAT, "Might"),
+        new ActorClassStatTemplate(Const.MAGIC_SCALE_STAT, "Guile"),
+        new ActorClassStatTemplate(Const.PHYSICAL_RESIST_STAT, "Armor"),
+        new ActorClassStatTemplate(Const.MAGIC_RESIST_STAT, "Spell Resistance"),
     };
 }
 
 [System.Serializable]
-public struct CombatClassStatTemplate
+public struct ActorClassStatTemplate
 {
     [HideInInspector] public string InternalName;
     public string ExternalName;
     public float BaseValue;
     public float ValuePerLevel;
 
-    public CombatClassStatTemplate(string internalName, string externalName)
+    public ActorClassStatTemplate(string internalName, string externalName)
     {
         InternalName = internalName;
         ExternalName = externalName;
@@ -41,8 +41,8 @@ public struct CombatClassStatTemplate
     }
 }
 
-[CustomPropertyDrawer(typeof(CombatClass))]
-public class Insp_CombatClass : Editor
+[CustomPropertyDrawer(typeof(ActorClass))]
+public class Insp_ActorClass : Editor
 {
     SerializedProperty nameProp;
     SerializedProperty statListProp;
