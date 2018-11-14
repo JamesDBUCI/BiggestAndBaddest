@@ -15,6 +15,7 @@ public class Game : MonoBehaviour
     public Actor PlayerPrefab;
     public ActorClass PlayerClass;
     public List<Skill> TestPlayerSkills;
+    public List<GearTemplate> TestPlayerGear;
     public Actor Player { get; private set; }
 
     public Boundary PlayableArea;
@@ -47,6 +48,11 @@ public class Game : MonoBehaviour
             playerActor.CombatController.Skills.SetSkillSlot(i, TestPlayerSkills[i]);
         }
         //playerActor.CombatController.CrowdControl.AddCC("crunk", 200);
+        for (int i = 0; i < TestPlayerGear.Count; i++)
+        {
+            playerActor.CombatController.Gear.AddGear(new GearController(TestPlayerGear[i]));
+        }
+        playerActor.CombatController.Gear.SetGearEnabled(GearSlotEnum.CHEST, false);
 
         Player = playerActor;
     }

@@ -22,4 +22,14 @@ public static class StatServices
 
         return new StatController(foundTemplate, classStat.BaseValue);
     }
+    public static StatChange RollStatChangeFromTemplate(StatChangeTemplate template)
+    {
+        if (template == null)
+        {
+            Debug.LogError("Tried to roll stat change from null template");
+            return null;
+        }
+
+        return new StatChange(template);
+    }
 }

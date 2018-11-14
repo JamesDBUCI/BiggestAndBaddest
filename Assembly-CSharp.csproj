@@ -66,6 +66,7 @@
     <Compile Include="Assets\!Scripts\PlayerMover.cs" />
     <Compile Include="Assets\!Scripts\PlayerShooter.cs" />
     <Compile Include="Assets\!Scripts\Presentation Layer\UIChannelBar.cs" />
+    <Compile Include="Assets\!Scripts\Presentation Layer\UIGearSlot.cs" />
     <Compile Include="Assets\!Scripts\Presentation Layer\UIManager.cs" />
     <Compile Include="Assets\!Scripts\Presentation Layer\UISkillLockBar.cs" />
     <Compile Include="Assets\!Scripts\Presentation Layer\UISkillSlot.cs" />
@@ -96,6 +97,15 @@
     <Compile Include="Assets\!Scripts\Simulation Layer\Game.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\GameDatabase.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\GameMath.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Gear System\GearController.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Gear System\GearManager.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Gear System\GearModController.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Gear System\GearModManager.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Gear System\GearModTemplate.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Gear System\GearServices.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Gear System\GearSlotController.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Gear System\GearSlotType.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Gear System\GearTemplate.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\Action.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\Choice.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\NPC AI\Condition.cs" />
@@ -104,11 +114,11 @@
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatChange.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatChangeType.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatController.cs" />
-    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatFlag.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatManager.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatScaler.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatServices.cs" />
     <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatTemplate.cs" />
+    <Compile Include="Assets\!Scripts\Simulation Layer\Stat System\StatusFlag.cs" />
     <Compile Include="Assets\!Scripts\Tools\DatabaseHelper.cs" />
     <Compile Include="Assets\!Scripts\Tools\KEditorTools.cs" />
     <Compile Include="Assets\!Scripts\Tools\KInspector.cs" />

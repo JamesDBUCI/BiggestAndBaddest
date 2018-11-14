@@ -6,8 +6,12 @@ public class UIManager : MonoBehaviour
 {
     public UISkillSlot SkillSlotPrefab;
     public Transform SkillSlotPanel;
-    private List<UISkillSlot> _activeSlots = new List<UISkillSlot>();
-    
+    private List<UISkillSlot> _activeSkillSlots = new List<UISkillSlot>();
+
+    public UIGearSlot GearSlotPrefab;
+    public Transform GearSlotPanel;
+    private List<UIGearSlot> _activeGearSlots = new List<UIGearSlot>();
+
     public UISkillLockBar SkillLockBar;
     public UIChannelBar ChannelBar;
 
@@ -24,7 +28,14 @@ public class UIManager : MonoBehaviour
         newSlot.SetButton(buttonName);
         newSlot.SetSkill(assignedController);
 
-        _activeSlots.Add(newSlot);
+        _activeSkillSlots.Add(newSlot);
+    }
+    public void NewGearSlot(GearSlotController gearSlot)
+    {
+        UIGearSlot uiSlot = Instantiate(GearSlotPrefab, GearSlotPanel);
+        //remember: set blank gear slot icon from gear slot type
+        uiSlot.AssignSlot(gearSlot);
+        gearSlot.onSlotChanged.AddListener(uiSlot.UpdateState);
     }
 
     public void TestSetup()
@@ -40,6 +51,12 @@ public class UIManager : MonoBehaviour
 
             SkillLockBar.AssignActor(Game.Self.Player);
             ChannelBar.AssignActor(Game.Self.Player);
+
+            var playerGearList = Game.Self.Player.CombatController.Gear.GetAllGearSlotControllers();
+            foreach (var kvp in playerGearList)
+            {
+                NewGearSlot(kvp.Value);
+            }
         }
     }
 }

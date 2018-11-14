@@ -9,36 +9,28 @@ public static class ModServices
 
     public const int MAX_PREFIX_SUFFIX = 2;     //update this with rarity system
 
-    public static bool ApplyNewRandomMod(IModdable moddable)
+    public static bool ApplyNewRandomMod<TemplateType, ControllerType>(ModManager modManager, bool ignoreFullAffixSlot = false)
+        where TemplateType : ModTemplate
+        where ControllerType : ModController<TemplateType>
     {
-        //grab a handle
-        ModManager mc = moddable.GetModController();
-        if (mc == null)
+        if (modManager == null)
             return false;
 
-        //check for max mods of affix
-        bool maxPrefix = mc.CountMods(AffixSlotEnum.PREFIX) >= MAX_PREFIX_SUFFIX;
-        bool maxSuffix = mc.CountMods(AffixSlotEnum.SUFFIX) >= MAX_PREFIX_SUFFIX;
-
-        if (maxPrefix && maxSuffix)
-        {
-            Debug.Log("No mod was applied to moddable because all affix slots were full.");
-            return false;
-        }
+        var typedManager = (ModManager<TemplateType, ControllerType>)modManager;
 
         //get a random mod that matches the viability predicate (method is below)
-        ModTemplate selectedModTemplate;
-        if (!GameDatabase.Mods.TryGetRandom(template => ModTemplateViabilityPredicate(mc, template), out selectedModTemplate))
+        TemplateType selectedModTemplate;
+        if (!GameDatabase.Mods.TryGetRandomModOfType(template => ModTemplateViabilityPredicate(modManager, template, ignoreFullAffixSlot), out selectedModTemplate))
         {
             Debug.Log("No mod was applied to moddable because no mods were viable.");
             return false;
         }
 
         //apply (and roll) mod
-        mc.AddModFromTemplate(selectedModTemplate);
+        typedManager.AddModFromTemplate(selectedModTemplate);
         return true;
     }
-    private static bool ModTemplateViabilityPredicate(ModManager mc, ModTemplate template)
+    private static bool ModTemplateViabilityPredicate(ModManager mc, ModTemplate template, bool ignoreFullAffixSlot = false)
     {
         //could have done this with a System.Predicate<>, but I like easy mode
 
@@ -52,7 +44,7 @@ public static class ModServices
             return false;
 
         //not viable if the number of mods in this affix slot are limited and we are maxed out
-        if (foundSlot.CountIsLimited)
+        if (!ignoreFullAffixSlot && foundSlot.CountIsLimited)
         {
             if (mc.CountMods(template.AffixSlot) >= MAX_PREFIX_SUFFIX)
                 return false;
@@ -61,99 +53,39 @@ public static class ModServices
         //viable
         return true;
     }
-
-    public static ModController CreateMod(ModTemplate template)
-    {
-        //create a new mod instance from a template
-
-        List<StatChange> rolledChanges = new List<StatChange>();
-
-        //iterate stat change templates from mod template
-        foreach (StatChangeTemplate change in template.StatChanges)
-        {
-            //roll a value for this stat change template
-            float rolledValue = RollValue(change);
-            
-            //apply the roll to a new stat change instance
-            StatChange rolledChange = new StatChange(change, rolledValue);
-            
-            //add it to the list
-            rolledChanges.Add(rolledChange);
-        }
-
-        //return a new mod instance with rolled stat changes
-        return new ModController(template, rolledChanges);
-    }
-
-    private static float RollValue(StatChangeTemplate template)
-    {
-        //Math has been broken down for readability
-        float precision = template.Precision;
-        int adjustedMin = Mathf.FloorToInt(template.MinValue / precision);
-        int adjustedMax = Mathf.FloorToInt(template.MaxValue / precision);
-        float roll = Random.Range(adjustedMin, adjustedMax + 1) * precision;
-
-        //if values are [precision = 0.5, min = 4, max = 13]
-        //adjustedMin = 4 / 0.5 = 4 * 2 = 8
-        //adjustedMax = 13 / 0.5 = 13 * 2 = 26
-        //roll is between 8 and 26 (27 is excluded), then multiplied by 0.5 (roll of 21 = final value of 10.5)
-
-        //if values are [precision = 4, min = 8, max = 28]
-        //adjustedMin = 8 / 4 = 2
-        //adjustedMax = 28 / 4 = 7
-        //roll is between 2 and 7 (8 is excluded), then multiplied by 4 (roll of 3 = final value of 12)
-
-        return roll;
-    }
-
-    public static void TestModSystem(IModdable moddable)
-    {
-        ApplyNewRandomMod(moddable);
-        ApplyNewRandomMod(moddable);
-        ModManager testMC = moddable.GetModController();
-
-        Debug.Log("Added Mod(s) to test moddable.");
-        Debug.Log("Test moddable mod count = " + testMC.CountMods());
-        Debug.Log("Test moddable modified name = " + testMC.GetModifiedName("BASE NAME"));
-
-        List<ModDescription> modDescriptions = testMC.GetAllModDescriptions();
-        for (int i = 0; i < modDescriptions.Count; i++)
-        {
-            LogModDescription(modDescriptions[i]);
-        }
-    }
-
-    public static void LogModDescription(ModDescription modDescription)
-    {
-        Debug.Log("Mod Name: " + modDescription.NameExternal);
-        Debug.Log("Mod Affix: " + modDescription.AffixSlot);
-
-        for (int i = 0; i < modDescription.EffectDescriptionsTemplate.Count; i++)
-        {
-            Debug.Log("Effect " + i + " template: " + modDescription.EffectDescriptionsTemplate[i]);
-            Debug.Log("Effect " + i + " rolled: " + modDescription.EffectDescriptionsRolled[i]);
-        }
-    }
 }
 
-public struct ModDescription
+public class ModDatabase : DatabaseHelper<ModTemplate>
 {
-    //a packet of strings for displaying mod descriptions
-    public readonly string NameExternal;
-    public readonly string AffixSlot;
-    public readonly List<string> EffectDescriptionsTemplate;
-    public readonly List<string> EffectDescriptionsRolled;
+    public ModDatabase(string path, string assetTypeName, List<DatabaseHelper> containerList = null)
+        :base(path, assetTypeName, containerList) { }
 
-    public ModDescription(string nameExternal, string affixSlot, List<string> effectsTemplate, List<string> effectsRolled)
+    public bool TryGetRandomModOfType<TemplateType>(out TemplateType foundTemplate) where TemplateType : ModTemplate
     {
-        NameExternal = nameExternal;
-        AffixSlot = affixSlot;
-        EffectDescriptionsTemplate = new List<string>(effectsTemplate);
-        EffectDescriptionsRolled = new List<string>(effectsRolled);
+        if (TryGetRandomModOfType(asset => true, out foundTemplate))
+            return true;
+        return false;
     }
-}
+    public bool TryGetRandomModOfType<TemplateType>(System.Predicate<TemplateType> predicate, out TemplateType foundTemplate) where TemplateType : ModTemplate
+    {
+        foundTemplate = null;
 
-public interface IModdable
-{
-    ModManager GetModController();
+        var allModsOfType = GetAllModsOfType<TemplateType>();
+        if (allModsOfType.Count == 0)
+            return false;
+
+        var modsWherePredicate = allModsOfType.Where(mod => predicate(mod)).ToList();
+
+        if (modsWherePredicate.Count == 0)
+            return false;
+
+        foundTemplate = modsWherePredicate[Random.Range(0, allModsOfType.Count)];
+        return true;
+    }
+    public List<TemplateType> GetAllModsOfType<TemplateType>() where TemplateType : ModTemplate
+    {
+        List<ModTemplate> foundAssets;
+        TryFindMany(asset => asset.GetType() == typeof(TemplateType), out foundAssets);
+        return foundAssets.Select(uncasted => (TemplateType)uncasted).ToList();
+    }
 }

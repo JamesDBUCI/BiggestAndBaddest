@@ -10,7 +10,10 @@ public class CombatController
     //core subsystems
     public StatManager Stats { get; private set; }
     public SkillManager Skills { get; private set; }
-    public CrowdControlManager CrowdControl { get; private set; }
+    public GearManager Gear { get; private set; }
+
+    public CrowdControlManager CrowdControl { get; private set; }   //condition manager?
+    //conditions/modifiers
 
     //secondary subsystems
     public int Level { get; private set; }
@@ -20,6 +23,14 @@ public class CombatController
     public CombatController(Actor parent)
     {
         ParentActor = parent;
+    }
+    public void Init()
+    {
+        //called after the first Awake() calls. most of these need fully-initialized databases to not crash.
+        Stats = new StatManager(ParentActor);
+        Skills = new SkillManager(ParentActor);
+        Gear = new GearManager(ParentActor);
+        CrowdControl = new CrowdControlManager(ParentActor);
     }
 
     /*
@@ -178,13 +189,6 @@ public class CombatController
     }
 
     //functions
-    public void Init()
-    {
-        //called after the first Awake() calls. most of these need fully-initialized databases to not crash.
-        Stats = new StatManager();
-        Skills = new SkillManager(ParentActor);
-        CrowdControl = new CrowdControlManager(ParentActor);
-    }
     public bool LevelUp(int numberOfLevels, bool resetAllFlagsAndChanges = false)
     {
         Level += numberOfLevels;    //yes, down too

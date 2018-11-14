@@ -5,15 +5,21 @@ using UnityEngine;
 
 public class StatManager
 {
-    protected List<StatController> _baseStats = new List<StatController>();
-    protected List<StatFlag> _flags = new List<StatFlag>();
-    protected List<StatChange> _statChanges = new List<StatChange>();
+    public Actor ParentActor { get; private set; }
+
+    private List<StatController> _baseStats = new List<StatController>();
+    private List<StatusFlag> _flags = new List<StatusFlag>();
+    private List<StatChange> _statChanges = new List<StatChange>();
 
     //ctor
     public StatManager()
     {
         //write a default copy of every stat in the database
         GameDatabase.Stats.GetAllAssets().ForEach(st => _baseStats.Add(new StatController(st)));
+    }
+    public StatManager(Actor actor) : this()
+    {
+        ParentActor = actor;
     }
 
     //general functions
@@ -29,7 +35,7 @@ public class StatManager
 
             StatController foundStat = FindStat(foundTemplate);
             foundStat.SetValue(classStatTemplate.BaseValue);
-            foundStat.ChangeValue(classStatTemplate.ValuePerLevel * level);            
+            foundStat.ChangeValue(classStatTemplate.ValuePerLevel * level);
         }
     }
 
@@ -59,13 +65,13 @@ public class StatManager
 
         return CalculateCurrentStatValue(foundStat);
     }
-    public float CalculateCurrentStatValue(StatTemplate template)
+    public float CalculateCurrentStatValue(StatTemplate stat)
     {
-        List<StatChange> changesForThisStat = _statChanges.Where(change => change.StatInternalName == template.name).ToList();
+        List<StatChange> changesForThisStat = _statChanges.Where(change => change.ChangeTemplate.AffectedStat == stat).ToList();
 
-        float calculatedValue = GameMath.CalculateStatWithChanges(GetBaseStatValue(template), changesForThisStat);
+        float calculatedValue = GameMath.CalculateStatWithChanges(GetBaseStatValue(stat), changesForThisStat);
 
-        return StatController.GetLegalizedValue(template, calculatedValue);
+        return StatController.GetLegalizedValue(stat, calculatedValue);
     }
     public List<StatController> CalculateCurrentStatValues()
     {
@@ -81,7 +87,7 @@ public class StatManager
     }
 
     //flag functions
-    public bool AddFlag(StatFlag newFlag)
+    public bool AddFlag(StatusFlag newFlag)
     {
         if (_flags.Contains(newFlag))
             return false;
@@ -89,12 +95,12 @@ public class StatManager
         _flags.Add(newFlag);
         return true;
     }
-    public bool RemoveFlag(StatFlag newFlag)
+    public bool RemoveFlag(StatusFlag newFlag)
     {
         //naturally returns false if none was found
         return _flags.Remove(newFlag);
     }
-    public bool CheckFlag(StatFlag newFlag)
+    public bool CheckFlag(StatusFlag newFlag)
     {
         return _flags.Contains(newFlag);
     }
