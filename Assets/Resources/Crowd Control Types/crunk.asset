@@ -11,8 +11,9 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: crunk
   m_EditorClassIdentifier: Assembly-CSharp::CrowdControlTemplate
-  ExternalName: Crunk
-  MoveSpeed: 0.8
+  NameExternal: 
+  Icon: {fileID: 0}
+  MoveSpeed: 0.1
   AimSpeed: 1
   MoveClockwiseOffset: 45
   AimClockwiseOffset: -45

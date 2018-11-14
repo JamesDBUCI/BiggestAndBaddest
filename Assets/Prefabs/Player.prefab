@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4635683915803186}
   m_Layer: 0
-  m_Name: AimTransform
+  m_Name: Aura Transform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37,7 +37,53 @@ GameObject:
   - component: {fileID: 212649098581252034}
   - component: {fileID: 61276284528386556}
   m_Layer: 0
-  m_Name: New Sprite
+  m_Name: Actor Graphic
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1453732037727324
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4407682290489356}
+  - component: {fileID: 61779586745110522}
+  m_Layer: 0
+  m_Name: Feet Collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1593535407789976
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4263139766615824}
+  m_Layer: 0
+  m_Name: Auto-skill Transform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1833266891097582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4971122354877292}
+  m_Layer: 0
+  m_Name: Aim Transform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,18 +110,44 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!4 &4263139766615824
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1593535407789976}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4689152391487918}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4407682290489356
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1453732037727324}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4689152391487918}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4635683915803186
 Transform:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1223722853909886}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4689152391487918}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4689152391487918
 Transform:
@@ -88,7 +160,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4899936620087086}
+  - {fileID: 4971122354877292}
   - {fileID: 4635683915803186}
+  - {fileID: 4263139766615824}
+  - {fileID: 4407682290489356}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -104,6 +179,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4689152391487918}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4971122354877292
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1833266891097582}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4689152391487918}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &50668218387180626
 Rigidbody2D:
@@ -136,7 +224,7 @@ BoxCollider2D:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_UsedByComposite: 1
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0.049999997, y: 0.049999997, z: 0.049999997, w: 0.049999997}
@@ -150,6 +238,31 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.46, y: 0.46}
   m_EdgeRadius: 0
+--- !u!61 &61779586745110522
+BoxCollider2D:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1453732037727324}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -0.16}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.46, y: 0.14}
+  m_EdgeRadius: 0
 --- !u!66 &66746670683174920
 CompositeCollider2D:
   m_ObjectHideFlags: 1
@@ -159,16 +272,30 @@ CompositeCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   m_GeometryType: 0
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths: []
+  m_ColliderPaths:
+  - m_Collider: {fileID: 61276284528386556}
+    m_ColliderPaths:
+    - - X: 2300000
+        Y: 2300000
+      - X: -2300000
+        Y: 2300000
+      - X: -2300000
+        Y: -2300000
+      - X: 2300000
+        Y: -2300000
   m_CompositePaths:
-    m_Paths: []
+    m_Paths:
+    - - {x: 0.23, y: 0.23}
+      - {x: -0.23, y: 0.23}
+      - {x: -0.23, y: -0.23}
+      - {x: 0.23, y: -0.23}
   m_VertexDistance: 0.0005
 --- !u!82 &82401350942525544
 AudioSource:
@@ -287,6 +414,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bbeaa5f9ccb0bf4a87fcc39b45908cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FeetCollider: {fileID: 61779586745110522}
+  ActorAimTransform: {fileID: 4971122354877292}
+  ActorAuraTransform: {fileID: 4635683915803186}
+  ActorAutoSkillTransform: {fileID: 4263139766615824}
+  RotationSpeed: 1000
+  MovementSpeed: 30
   onActorMove:
     m_PersistentCalls:
       m_Calls: []
@@ -297,9 +430,6 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEventFloat, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
-  AimTransform: {fileID: 4635683915803186}
-  RotationSpeed: 1000
-  MovementSpeed: 30
 --- !u!114 &114789624126970808
 MonoBehaviour:
   m_ObjectHideFlags: 1

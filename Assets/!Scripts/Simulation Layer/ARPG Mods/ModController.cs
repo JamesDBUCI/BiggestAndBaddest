@@ -42,8 +42,9 @@ public abstract class ModController
             return null;
         }
     }
-    public ModController()
+    public ModController(ModTemplate template)
     {
+        Template = template;
         RollValues();
     }
     public abstract void RollValues();
@@ -51,8 +52,5 @@ public abstract class ModController
 public abstract class ModController<TemplateType> : ModController where TemplateType : ModTemplate
 {
     public ModController(TemplateType template)
-        :base()
-    {
-        Template = template;
-    }
+        :base(template) { }
 }

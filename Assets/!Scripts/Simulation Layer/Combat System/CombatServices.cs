@@ -6,9 +6,13 @@ public enum CoreDamageTypeEnum
 {
     PHYSICAL, MAGIC, HYBRID, ADAPTIVE_HIGH, ADAPTIVE_LOW, TRUE
 }
+public enum ActorFaction
+{
+    ALLY, ENEMY, NEUTRAL
+}
 public static class CombatServices
 {
-    public static float GetStatValueFromSet(StatTemplate stat, List<StatController> set)
+    private static float GetStatValueFromSet(StatTemplate stat, List<StatController> set)
     {
         StatController foundStat = set.Find(setStat => setStat.Template == stat);
         if (foundStat == null)
@@ -16,80 +20,92 @@ public static class CombatServices
 
         return foundStat.Value;
     }
-    public static DamagePacket ConstructDamagePacket(Actor origin, List<StatController> CalculatedStatSet, SkillPhase phase)
+    public static HitNugget ConstructHitNugget(Actor origin, Skill.EffectInfo effect)
     {
-        //this overload assumes you have the stats you want to use for calculation
-        //(either because it was delayed damage, or you just got them from the other overload)
-        
-        if (phase.Potency == null)
-            return new DamagePacket(origin, new DamageWithType(CoreDamageTypeEnum.TRUE, 0, null));   //blank damage
+        return ConstructHitNugget(origin, effect, origin.CombatController.Stats.CalculateCurrentStatValues());
+    }
+    public static HitNugget ConstructHitNugget(Actor origin, Skill.EffectInfo effect, List<StatController> stats)
+    {
+        if (effect.Potency == null)
+            return new HitNugget(origin, null);   //blank damage
+
+        //get current stats
+        var currentStats = origin.CombatController.Stats.CalculateCurrentStatValues();
 
         //empty list
-        List<DamageWithType> damageNodes = new List<DamageWithType>();
+        List<DamageWithType> finalDamageInHit = new List<DamageWithType>();
 
         float totalScaleStatValue = 0;
 
         //iterate stat scaling
-        foreach (StatScaler statScaler in phase.StatScaling)
+        foreach (StatScaler statScaler in effect.Scaling)
         {
-            totalScaleStatValue += GetStatValueFromSet(statScaler.Stat, CalculatedStatSet) * statScaler.Scale;
+            totalScaleStatValue += GetStatValueFromSet(statScaler.Stat, currentStats) * statScaler.Scale;
         }
 
-        foreach (DamageWithType potency in phase.Potency)
+        //iterate potencies
+        foreach (DamageWithType potency in effect.Potency)
         {
-            //Debug.Log("Damage going into packet: " + totalScaleStatValue * (potency.Value / 100) + " " + potency.Types[0].ExternalName);
-            damageNodes.Add(new DamageWithType(potency.CoreDamageType, totalScaleStatValue * (potency.Value / 100), potency.SecondaryTypes.ToArray()));
+            finalDamageInHit.Add(new DamageWithType(potency.CoreDamageType, totalScaleStatValue * (potency.Value / 100), potency.SecondaryTypes.ToArray()));
         }
 
-        return new DamagePacket(origin, damageNodes.ToArray());
+        return new HitNugget(origin, finalDamageInHit.ToArray());
     }
-    public static DamagePacket ConstructDamagePacket(Actor origin, SkillPhase skillPhase)
+    public static void TakeDamageOrHeal(Actor target, HitNugget hitNugget, float scale = 1)
     {
-        //this overload assumes you want to calculate the damage based on stat values at this exact moment in time.
-        return ConstructDamagePacket(origin, origin.CombatController.Stats.CalculateCurrentStatValues(), skillPhase);
+        TakeDamageOrHeal(target, new List<DamageWithType>(hitNugget.Damage), scale);
     }
-    public static void TakeDamagePacket(Actor combatant, DamagePacket damage)
+    public static void TakeDamageOrHeal(Actor target, List<DamageWithType> damageOrHealing, float scale = 1)
     {
+        //core method for healing or dealing damage to a target
+        //damage scale defaults to 1, but should be modified for reciprocal damage or healing (recoil, etc...)
+
         //grab a handle
-        StatManager sc = combatant.CombatController.Stats;
+        StatManager sc = target.CombatController.Stats;
 
         //iterate all type nodes of incoming damage
-        float totalDamageAfterMitigation = 0;
-        foreach (DamageWithType dmg in damage.DamageNodes)
+        float totalPotencyAfterMitigation = 0;
+        foreach (DamageWithType dmg in damageOrHealing)
         {
+            //figure out sign of dmg (damage is positive, healing is negative)
+            bool dmgIsHealing = dmg.Value < 0;
+
             //resistance to the core damage type of the hit
-            float coreResistValue = GetCoreResistValue(combatant, dmg.CoreDamageType);
+            float coreResistValue = dmgIsHealing ? 0 : GetCoreResistValue(target, dmg.CoreDamageType);
 
             //list of resistances for each secondary damage type in the node
             List<float> secondaryResistances = new List<float>();
 
-            //iterate all secondary types within the node
-            foreach (DamageType dt in dmg.SecondaryTypes)
+            if (!dmgIsHealing)
             {
-                if (dt == null)     //if there is an empty damage type slot
-                    continue;
+                //iterate all secondary types within the node
+                foreach (DamageType dt in dmg.SecondaryTypes)
+                {
+                    if (dt == null)     //if there is an empty damage type slot
+                        continue;
 
-                if (dt.ResistanceStat.Stat == null)     //if there is an empty resistance stat type slot
-                    continue;
+                    if (dt.ResistanceStat.Stat == null)     //if there is an empty resistance stat type slot
+                        continue;
 
-                //if the damage type can be resisted
+                    //if the damage type can be resisted
 
-                float subtypeResistance = 0;
+                    float subtypeResistance = 0;
 
-                //get resist stat scaled value (cap it at max, since we're calculating as resistance)
-                    
-                subtypeResistance = Mathf.Min(Const.MAX_RESISTANCE_STAT_VALUE,
-                                                sc.CalculateCurrentStatValue(dt.ResistanceStat.Stat) * dt.ResistanceStat.Scale);
+                    //get resist stat scaled value (cap it at max, since we're calculating as resistance)
 
-                //Debug.Log("Resistance Stat found and value applied: " + subtypeResistance);
+                    subtypeResistance = Mathf.Min(Const.MAX_RESISTANCE_STAT_VALUE,
+                                                    sc.CalculateCurrentStatValue(dt.ResistanceStat.Stat) * dt.ResistanceStat.Scale);
 
-                /*
-                    * We could make unorthodox stats like Critical Hit Rate or move speed into resist stats for something,
-                    * so we have to cap the stat total here and only here.
-                */
+                    //Debug.Log("Resistance Stat found and value applied: " + subtypeResistance);
 
-                //add it to the list
-                secondaryResistances.Add(subtypeResistance);
+                    /*
+                        * We could make unorthodox stats like Critical Hit Rate or move speed into resist stats for something,
+                        * so we have to cap the stat total here and only here.
+                    */
+
+                    //add it to the list
+                    secondaryResistances.Add(subtypeResistance);
+                }
             }
 
             //get average of resists in case of multi-type damage node
@@ -106,14 +122,14 @@ public static class CombatServices
                 averageOfResists /= secondaryResistances.Count;   //NOTE: non-resistable damage types (no resist stat provided) will not affect average resistance
             }
 
-            float nodeDamage = GameMath.CalculateAdjustedDamage(dmg.Value, coreResistValue, averageOfResists);
-            totalDamageAfterMitigation += nodeDamage;
-            //Debug.Log("Damage going into boss: " + nodeDamage + " " + dmg.Types[0].ExternalName);
+            float nodePotency = GameMath.CalculateAdjustedDamage(dmg.Value, coreResistValue, averageOfResists);
+            totalPotencyAfterMitigation += nodePotency;     //factor in scale here
         }
 
         //TAKE THAT HIT
-        combatant.CombatController.ChangeHP(Mathf.RoundToInt(-totalDamageAfterMitigation));
+        target.CombatController.ChangeHP(Mathf.RoundToInt(-totalPotencyAfterMitigation));   //inverse of potency because positive value is damage
     }
+
     public static float GetCoreResistValue(Actor combatant, CoreDamageTypeEnum coreDamageType)
     {
         float totalResistance = 0;
@@ -167,14 +183,14 @@ public static class CombatServices
     }
 }
 
-public struct DamagePacket
+public struct HitNugget
 {
     public readonly Actor Origin;
-    public readonly List<DamageWithType> DamageNodes;
+    public readonly DamageWithType[] Damage;
 
-    public DamagePacket(Actor origin, params DamageWithType[] damageNodes)
+    public HitNugget(Actor origin, DamageWithType[] damage)
     {
         Origin = origin;
-        DamageNodes = new List<DamageWithType>(damageNodes);
+        Damage = damage;
     }
 }

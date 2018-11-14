@@ -5,29 +5,30 @@ using UnityEngine.UI;
 
 public class UISkillSlot : MonoBehaviour
 {
-    SkillController _representedSkill = null;
+    Skill.Controller _representedController = null;
 
     public Image IconImage;
     public Text NameText;
     public Image CooldownOverlay;
     public Text ButtonText;
 
-    public void SetSkill(SkillController skillController)
+    public void SetSkill(Skill.Controller skillController)
     {
-        if (skillController == null)
+        if (skillController == null || skillController.IsEmpty)
             return;
 
-        //handle
-        Skill skill = skillController.Skill;
+        _representedController = skillController;
 
-        _representedSkill = skillController;
-        IconImage.sprite = skill.Icon;
-        NameText.text = skill.ExternalName;
+        //handle
+        Skill.Template template = skillController.Contents.Template;
+
+        IconImage.sprite = template.Icon;
+        NameText.text = template.NameExternal;
         CooldownOverlay.fillAmount = 0;
     }
     public void EraseSkill()
     {
-        _representedSkill = null;
+        _representedController = null;
 
         IconImage.sprite = null;
         NameText.text = "";
@@ -39,15 +40,16 @@ public class UISkillSlot : MonoBehaviour
     }
     private void Update()
     {
-        if (_representedSkill != null)
+        if (_representedController != null)
             GetCooldownProgress();
     }
     public void GetCooldownProgress()
     {
-        if (_representedSkill.IsOnCooldown)
-            CooldownOverlay.fillAmount = 1 - _representedSkill.CooldownTimerInfo.ProgressNormalized;        //opposite value for visuals only
+        if (_representedController.Contents.IsOnCooldown)
+            CooldownOverlay.fillAmount = 1 - _representedController.Contents.CooldownProgressNormalized;        //opposite value for visuals only
         else
             CooldownOverlay.fillAmount = 0;
-        //can use CooldownDuration.ProgressExact if we want to show a seconds timer.
+        
+        //can use CooldownRemainingTime if we want to show a seconds timer.
     }
 }
