@@ -66,6 +66,7 @@
     <Compile Include="Assets\!Scripts\InfoPackets.cs" />
     <Compile Include="Assets\!Scripts\PlayerMover.cs" />
     <Compile Include="Assets\!Scripts\PlayerShooter.cs" />
+    <Compile Include="Assets\!Scripts\Presentation Layer\UIBossTimerBar.cs" />
     <Compile Include="Assets\!Scripts\Presentation Layer\UIChannelBar.cs" />
     <Compile Include="Assets\!Scripts\Presentation Layer\UIGearSlot.cs" />
     <Compile Include="Assets\!Scripts\Presentation Layer\UIManager.cs" />

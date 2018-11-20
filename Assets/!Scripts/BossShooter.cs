@@ -6,6 +6,8 @@ using UnityEngine;
 public class BossShooter : MonoBehaviour {
 
     Actor _parentActor;
+    //offset time in seconds
+    public float skillOffsetTime = 2.5f;
 
 	// Use this for initialization
 	void Start () {
@@ -14,10 +16,13 @@ public class BossShooter : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        //shoot at a random interval
-        if(Time.time % 10 == 0)
-        {
-            _parentActor.CombatController.Skills.TryUse(1);
-        }
+        
 	}
+    void PrepareSkill()
+    {
+        //Animation can play here
+        //Wait for offset time
+        //Channel ability
+        _parentActor.CombatController.Skills.TryUse(1);
+    }
 }
