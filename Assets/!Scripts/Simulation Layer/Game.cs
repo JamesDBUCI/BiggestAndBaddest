@@ -34,7 +34,7 @@ public class Game : MonoBehaviour
     void Start ()
     {
         TestSpawnPlayerCharacter();
-        TestBoss = SpawnActor(TestBossPrefab, PlayerClass, Vector2.zero);
+        TestSpawnBoss();
         UI.TestSetup();
 
         //ModServices.TestModSystem(TestBoss);
@@ -55,6 +55,23 @@ public class Game : MonoBehaviour
         playerActor.CombatController.Gear.SetGearEnabled(GearSlotEnum.CHEST, false);
 
         Player = playerActor;
+    }
+    //spawn boss with player's skills
+    public void TestSpawnBoss()
+    {
+        Actor bossActor = SpawnActor(TestBossPrefab, PlayerClass, Vector2.zero);
+        for (int i = 0; i < TestPlayerSkills.Count; i++)
+        {
+            bossActor.CombatController.Skills.SetSkillSlot(i, TestPlayerSkills[i]);
+        }
+        //playerActor.CombatController.CrowdControl.AddCC("crunk", 200);
+        for (int i = 0; i < TestPlayerGear.Count; i++)
+        {
+            bossActor.CombatController.Gear.AddGear(new GearController(TestPlayerGear[i]));
+        }
+        bossActor.CombatController.Gear.SetGearEnabled(GearSlotEnum.CHEST, false);
+
+        TestBoss = bossActor;
     }
     public Actor SpawnActor(Actor prefab, ActorClass combatClass, Vector2 location)
     {
