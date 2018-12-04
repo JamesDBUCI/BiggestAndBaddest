@@ -10,13 +10,10 @@ public class AttackManager : MonoBehaviour {
     public float skillOffsetTime = 2.5f;
     public float skillWait;
 
-    public ChannelingInfo channelData;
-
     public int skill = 0;
     private void OnEnable()
     {
         _parentActor = GetComponent<Actor>();
-        channelData = _parentActor.CombatController.ChannelingInfo;
     }
     // Use this for initialization
     void Start () {
