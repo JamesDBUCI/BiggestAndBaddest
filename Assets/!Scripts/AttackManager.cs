@@ -10,10 +10,13 @@ public class AttackManager : MonoBehaviour {
     public float skillOffsetTime = 2.5f;
     public float skillWait;
 
+    public ChannelingInfo channelData;
+
     public int skill = 0;
     private void OnEnable()
     {
         _parentActor = GetComponent<Actor>();
+        channelData = _parentActor.CombatController.ChannelingInfo;
     }
     // Use this for initialization
     void Start () {
@@ -21,11 +24,16 @@ public class AttackManager : MonoBehaviour {
 	}
     IEnumerator PrepareSkill(int slotIndex)
     {
-        //Animation can play here
-        //Wait for offset time
-        yield return new WaitForSeconds(skillOffsetTime);
-        //Channel ability
-        _parentActor.CombatController.Skills.TryUse(slotIndex);
-        yield return new WaitForSeconds(skillWait);
+        //repeat indefinitely
+        while (true)
+        {
+            //Wait for offset time
+            Debug.Log("Prepare Skill Start");
+            yield return new WaitForSeconds(skillOffsetTime);
+            //Channel ability
+            _parentActor.CombatController.Skills.TryUse(slotIndex);
+            Debug.Log("Now Waiting");
+            yield return new WaitForSeconds(skillWait);
+        }
     }
 }

@@ -4,5 +4,6 @@ using UnityEngine;
 using UnityEngine.Events;
 
 public class SkillEvent : UnityEvent<SkillController> {
-    
+
+
 }

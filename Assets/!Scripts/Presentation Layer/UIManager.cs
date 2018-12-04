@@ -15,6 +15,8 @@ public class UIManager : MonoBehaviour
     public UISkillLockBar SkillLockBar;
     public UIChannelBar ChannelBar;
 
+    public UIGlobalCalloutTimer CalloutTimer;
+
     private void Awake()
     {
         if (Game.UI == null)
@@ -57,6 +59,10 @@ public class UIManager : MonoBehaviour
             {
                 NewGearSlot(kvp.Value);
             }
+        }
+        if (Game.Self.TestBoss != null)
+        {
+            CalloutTimer.AssignActor(Game.Self.TestBoss);
         }
     }
 }
