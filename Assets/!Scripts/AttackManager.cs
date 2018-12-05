@@ -28,7 +28,7 @@ public class AttackManager : MonoBehaviour {
             Debug.Log("Prepare Skill Start");
             yield return new WaitForSeconds(skillOffsetTime);
             //Channel ability
-            _parentActor.CombatController.Skills.TryUse(slotIndex);
+            _parentActor.CombatController.Skills.TryUse(GearSlotEnum.WEAPON_OFFHAND);
             Debug.Log("Now Waiting");
             yield return new WaitForSeconds(skillWait);
         }

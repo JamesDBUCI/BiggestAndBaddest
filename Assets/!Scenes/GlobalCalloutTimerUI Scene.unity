@@ -405,10 +405,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 998ce6195ee98524c87d2a5e902f4d37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ProgressSlider: {fileID: 731969577}
-  SecondsText: {fileID: 1367715621}
+  ProgressSlider: {fileID: 0}
+  SecondsText: {fileID: 0}
   ShowSeconds: 1
-  SkillNameText: {fileID: 924757368}
+  SkillNameText: {fileID: 0}
 --- !u!1 &220600088
 GameObject:
   m_ObjectHideFlags: 0
@@ -854,15 +854,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b17144acae5b9149a3e25e819629ec3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SkillSlotPrefab: {fileID: 114220461584735924, guid: 32f5f5d330a5c584d92e990601353cf1,
-    type: 2}
-  SkillSlotPanel: {fileID: 716211616}
-  GearSlotPrefab: {fileID: 114113867082195826, guid: ca9cb69508b895b48ba67f5e6b72687a,
-    type: 2}
-  GearSlotPanel: {fileID: 816755427}
-  SkillLockBar: {fileID: 1373347246}
-  ChannelBar: {fileID: 795600413}
-  CalloutTimer: {fileID: 213552379}
+  SkillSlotPrefab: {fileID: 0}
+  SkillSlotPanel: {fileID: 0}
+  GearSlotPrefab: {fileID: 0}
+  GearSlotPanel: {fileID: 0}
+  SkillLockBar: {fileID: 0}
+  ChannelBar: {fileID: 0}
+  CalloutTimer: {fileID: 0}
 --- !u!1 &716211615
 GameObject:
   m_ObjectHideFlags: 0
@@ -1177,10 +1175,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b785d4e02bb18c46a018813b07d8c29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ProgressSlider: {fileID: 127800834}
-  SecondsText: {fileID: 1893851607}
+  ProgressSlider: {fileID: 0}
+  SecondsText: {fileID: 0}
   ShowSeconds: 1
-  SkillNameText: {fileID: 463889531}
+  SkillNameText: {fileID: 0}
 --- !u!1 &800270883
 GameObject:
   m_ObjectHideFlags: 0
@@ -1901,9 +1899,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddd448eb3101c34b9f943af5b6753e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ProgressSlider: {fileID: 724846180}
-  SecondsText: {fileID: 914351592}
-  ShowSeconds: 0
+  ProgressSlider: {fileID: 0}
+  SecondsText: {fileID: 0}
+  ShowSeconds: 1
 --- !u!1 &1461758295
 GameObject:
   m_ObjectHideFlags: 0
@@ -2201,20 +2199,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb930298bc5fcea4bbde38194a95cfc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TestBossPrefab: {fileID: 114806243764899956, guid: b68be4dd0ee0b164ea517a991978758c,
+  TestBossPrefab: {fileID: 114253596344963026, guid: 997e9e38d9c4af4489c73f5ed4631fb1,
     type: 2}
   PlayerPrefab: {fileID: 114725829314570520, guid: 0af58889b8b2d17418a45f79bf6b468e,
     type: 2}
   PlayerClass: {fileID: 11400000, guid: c633d4b2dd93a7c4ba454cabe3d1becc, type: 2}
-  TestPlayerSkills:
-  - {fileID: 11400000, guid: d7a666c426fb2504996c8435c6aea871, type: 2}
-  - {fileID: 11400000, guid: 39ebfcd4e6341c74baec6beb9005345f, type: 2}
-  - {fileID: 11400000, guid: 1e95a9aa6a344664babf81656c6ec61b, type: 2}
   TestPlayerGear:
+  - {fileID: 11400000, guid: 22a0fce25b1c83749b958b1e48274137, type: 2}
+  - {fileID: 11400000, guid: e39db3374f9ede146b0b934c18f097bd, type: 2}
   - {fileID: 11400000, guid: 4c9803e8718cbb841829e87b9fe746a7, type: 2}
   PlayableArea:
-    X: {x: -4.6, y: 4.6}
-    Y: {x: -3.6, y: 3.6}
+    X: {x: 0, y: 0}
+    Y: {x: 0, y: 0}
+  ProjectilePrefab: {fileID: 114379925898633140, guid: a8b62e42b8e3ade459e4e82ba67f1ef9,
+    type: 2}
+  AuraPrefab: {fileID: 114313367107851482, guid: fa85450b5e2dea24eb860a787144efaf,
+    type: 2}
+  ZonePrefab: {fileID: 0}
+  AutoSkillPrefab: {fileID: 114773784370948404, guid: 264f2fa52a759434f8c61bfc88792f49,
+    type: 2}
 --- !u!1 &1655561988
 GameObject:
   m_ObjectHideFlags: 0
