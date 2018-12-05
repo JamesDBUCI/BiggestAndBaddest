@@ -47,7 +47,7 @@ public class Game : MonoBehaviour
     }
     public void TestSpawnPlayerCharacter()
     {
-        Actor playerActor = SpawnActor(PlayerPrefab, PlayerClass, ActorFaction.ALLY, new Vector2(-2, -2));
+        Actor playerActor = SpawnActor(PlayerPrefab, PlayerClass, ActorFaction.ALLY, new Vector2(-4, -4));
 
         //playerActor.CombatController.CrowdControl.AddTimer("crunk", 200);
 
