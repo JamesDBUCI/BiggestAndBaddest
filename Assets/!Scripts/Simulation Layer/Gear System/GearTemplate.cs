@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Gear")]
-public class GearTemplate : ScriptableObject
+public class GearTemplate : AbstractAssetTemplate
 {
-    public string ExternalName;
     public GearSlotEnum GearSlot;
-    public Sprite Icon;
     public List<GearModTemplate> ImplicitMods;
-    public Skill Skill;
+    public Skill.Template Skill;
 }

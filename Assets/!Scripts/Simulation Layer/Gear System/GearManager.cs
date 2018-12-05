@@ -3,111 +3,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class GearManager
+public class GearManager : AbstractSlotManager<GearSlotController, GearInstance>
 {
-    public Actor ParentActor { get; private set; }
-    private Dictionary<GearSlotEnum, GearSlotController> _slots = new Dictionary<GearSlotEnum, GearSlotController>();
-
-    //events
-    public UnityEvent onBeforeGearChanged = new UnityEvent();
-    public UnityEvent onAfterGearChanged = new UnityEvent();
-
-    public GearManager(Actor parent)
+    public List<GearInstance> AllEquipped
     {
-        ParentActor = parent;
-
-        foreach (var slotType in GearSlotType.All.Keys)
+        get
         {
-            _slots.Add(slotType, new GearSlotController(parent));
+            return _slots.Values.Where(gsc => !gsc.IsEmpty).Select(gsc => gsc.Contents).ToList();
         }
     }
-    private bool SlotIsValid(GearSlotEnum gearType)
+    public List<GearInstance> AllEnabled
     {
-        return _slots.ContainsKey(gearType);
-    }
-    private GearSlotController FindGearSlotController(GearSlotEnum gearType)
-    {
-        if (!SlotIsValid(gearType))
+        get
         {
-            Debug.LogError("Specified gear slot does not exist in manager: " + gearType);
-            return null;
+            return _slots.Values.Where(gsc => !gsc.IsEmpty && gsc.Enabled).Select(gsc => gsc.Contents).ToList();
         }
-
-        GearSlotController gsc;
-        _slots.TryGetValue(gearType, out gsc);
-        return gsc;
     }
 
-    public bool HasGearInSlot(GearSlotEnum gearType)
+    public GearManager(Actor origin)
+        :base(origin) { }
+
+    protected override Dictionary<GearSlotEnum, GearSlotController> GetNewEmptyDictionary()
     {
-        return FindGearSlotController(gearType).HasItem;
-    }
-    public GearController GetGearInSlot(GearSlotEnum gearType)
-    {
-        return FindGearSlotController(gearType).Item;
-    }
-    public bool HasGearItem(GearTemplate itemToMatch)
-    {
-        return HasGearWhere(item => item.Template == itemToMatch);
-    }
-    public bool HasGearWhere(System.Predicate<GearController> predicate)
-    {
-        return _slots.Values.Where(gsc => gsc.HasItem).Select(gsc => gsc.Item).ToList().Exists(item => predicate(item));
+        var newDict = new Dictionary<GearSlotEnum, GearSlotController>();
+
+        GearSlotType.ForEach(gearType => newDict.Add(gearType, new GearSlotController(ParentActor, gearType)));
+
+        return newDict;
     }
 
-    private void AddGearItem(GearController item)
+    public List<StatChange> GetAllEnabledStatChanges()
     {
-        GearSlotController gsc = FindGearSlotController(item.Template.GearSlot);
-        gsc.AddItem(item);
-    }
-    public bool AddGear(GearController newGear, bool silenceEvent = false)    //return true if gear was added
-    {
-        if (HasGearInSlot(newGear.Template.GearSlot))
-            return false;
+        List<StatChange> allChanges = new List<StatChange>();
+        foreach (GearSlotController gsc in _slots.Values)
+        {
+            if (gsc.IsEmpty || !gsc.Enabled)
+                continue;
 
-        GearChangeAction(() => AddGearItem(newGear), silenceEvent);
-        return true;
-    }
-    public void AddOrReplaceGear(List<GearController> newGear, bool silenceEvent = false)
-    {
-        //silence individual events
-        GearChangeAction(() => newGear.ForEach(gear => AddGear(gear, true)), silenceEvent);
-    }
-    public void RemoveGearInSlot(GearSlotEnum gearType, bool silenceEvent = false)
-    {
-        GearChangeAction(() => FindGearSlotController(gearType).RemoveItem(), silenceEvent);
-    }
-    public void RemoveAllGear(bool silenceEvent = false)
-    {
-        GearChangeAction(() => _slots.Values.ToList().ForEach(gsc => gsc.RemoveItem()), silenceEvent);
-    }
-    private void GearChangeAction(System.Action action, bool silenceEvent)
-    {
-        BeforeGearChange(silenceEvent);
-
-        action();
-
-        AfterGearChange(silenceEvent);
-    }
-    public void SetGearEnabled(GearSlotEnum gearType, bool value, bool silenceEvent = false)
-    {
-        GearChangeAction(() => FindGearSlotController(gearType).SetEnabled(value, true), silenceEvent);
-    }
-
-    private void BeforeGearChange(bool silenceEvent)
-    {
-        if (!silenceEvent && onBeforeGearChanged != null)
-            onBeforeGearChanged.Invoke();
-    }
-    private void AfterGearChange(bool silenceEvent)
-    {
-        if (!silenceEvent && onAfterGearChanged != null)
-            onAfterGearChanged.Invoke();
-    }
-
-    public List<KeyValuePair<GearSlotEnum, GearSlotController>> GetAllGearSlotControllers()
-    {
-        //mostly for UI
-        return _slots.ToList();
+            allChanges.AddRange(gsc.Contents.GetStatChanges());
+        }
+        return allChanges;
     }
 }

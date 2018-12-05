@@ -11,27 +11,28 @@ public abstract class UITimerBar : MonoBehaviour
 
     public bool ShowSeconds = true;
 
-    protected abstract TimerInfo GetTimerInfo();
+    [System.NonSerialized] protected float _remainingTime = 0;
+    [System.NonSerialized] protected float _progressNormalized = 1;
 
+    protected abstract bool UpdateTimerInfo();
     private void Update()
     {
-        TimerInfo timerInfo = GetTimerInfo();
-        OnUpdate_Early(timerInfo);
+        OnUpdate_Early();
 
-        if (timerInfo.ValidInfo)
+        if (UpdateTimerInfo())
         {
             ToggleBarVisible(true);
-            SetSliderValue(timerInfo.ProgressNormalized);
+            SetSliderValue(_progressNormalized);
 
             if (ShowSeconds)
-                SetSecondsText(timerInfo.RemainingTime.ToString("F"));
+                SetSecondsText(_remainingTime.ToString("F"));
         }
         else
         {
             ToggleBarVisible(false);
         }
 
-        OnUpdate_Late(timerInfo);
+        OnUpdate_Late();
     }
     public void ToggleBarVisible(bool value)
     {
@@ -48,8 +49,8 @@ public abstract class UITimerBar : MonoBehaviour
         SecondsText.text = text;
     }
 
-    public virtual void OnUpdate_Early(TimerInfo timerInfo) { }
-    public virtual void OnUpdate_Late(TimerInfo timerInfo) { }
+    public virtual void OnUpdate_Early() { }
+    public virtual void OnUpdate_Late() { }
     public virtual void OnToggleVisible(bool value) { }
 }
 

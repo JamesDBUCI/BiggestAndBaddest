@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class CombatTimer
+public class CombatTimer : IActorOwned
 {
     //things like Skill-lock and Channeling use this functionality
 
-    public static TimerInfo GetInfoOrEmpty(CombatTimer timer)
-    {
-        return timer != null ? new TimerInfo(timer) : new TimerInfo();
-    }
-
     //the actor this timer applies to (and who is running the actual timer coroutine)
-    readonly protected Actor _parent;
+    public Actor Origin { get; protected set; }
 
     //the full amount of time to count
     public float TotalDuration { get; private set; }
@@ -41,9 +36,9 @@ public class CombatTimer
     public UnityEvent onTimerCancel = new UnityEvent();
     public UnityEvent<Actor> onTimerInterrupt = new UnityEventActor();
 
-    public CombatTimer(Actor parent, float duration, UnityAction onTimerCompleteAction = null, UnityAction onTimerCancelAction = null, UnityAction<Actor> onTimerInterruptAction = null)
+    public CombatTimer(Actor origin, float duration, UnityAction onTimerCompleteAction = null, UnityAction onTimerCancelAction = null, UnityAction<Actor> onTimerInterruptAction = null)
     {
-        _parent = parent;
+        Origin = origin;
         TotalDuration = duration;
         CanceledOrInterrupted = false;
 
@@ -60,7 +55,7 @@ public class CombatTimer
         if (onTimerInterruptAction != null)
             onTimerInterrupt.AddListener(onTimerInterruptAction);
 
-        thisTimerCoroutine = _parent.StartCoroutine(Timer_Coroutine(duration));
+        thisTimerCoroutine = Origin.StartCoroutine(Timer_Coroutine(duration));
     }
 
     protected virtual bool CheckInterruptIsValid(Actor interruptor = null) 
@@ -70,7 +65,7 @@ public class CombatTimer
     }
     private void StopTimerCoroutine()
     {
-        _parent.StopCoroutine(thisTimerCoroutine);
+        Origin.StopCoroutine(thisTimerCoroutine);
     }
     public void Cancel()
     {
@@ -128,75 +123,107 @@ public class CombatTimer
         if (onTimerComplete != null)
             onTimerComplete.Invoke();
     }
+    public void CleanUpListeners()
+    {
+        onTimerCancel.RemoveAllListeners();
+        onTimerComplete.RemoveAllListeners();
+        onTimerInterrupt.RemoveAllListeners();
+    }
 }
 
-public class ChannelingTimer : CombatTimer
+public abstract class CombatTimerWithPayload<PayloadType> : CombatTimer
 {
-    public static ChannelingInfo GetInfoOrEmpty(ChannelingTimer timer)
+    public PayloadType Payload { get; protected set; }
+
+    public CombatTimerWithPayload(Actor origin, float duration, PayloadType payload, UnityAction onTimerCompleteAction = null,
+        UnityAction onTimerCancelAction = null, UnityAction<Actor> onTimerInterruptAction = null)
+        :base(origin, duration, onTimerCompleteAction, onTimerCancelAction, onTimerInterruptAction)
     {
-        return timer != null ? new ChannelingInfo(timer) : new ChannelingInfo();
+        Payload = payload;
     }
+}
 
-    public CrowdControlTimer LinkedCCTimer { get; private set; }
-    public bool MovingCancelsChannel { get; private set; }
-    public bool EnemiesCanInterrupt { get; private set; }
-    public string SkillName { get; private set; }
-
-    public ChannelingTimer(Actor parent, float duration, SkillController channeledSkill)
-        : base(parent, duration)
+public class ChannelingTimer : CombatTimerWithPayload<Skill.Controller>
+{
+    public ChannelingTimer(Actor origin, float duration, Skill.Controller channeledSkillController)
+        : base(origin, duration, channeledSkillController)
     {
-        SkillInfo_Channeling channelInfo = channeledSkill.Skill.ChannelingInfo;
-        bool ChannelInflictsCC = channelInfo.SelfInflictedCC != null;
-        if (ChannelInflictsCC)
+        //lots of setup for channeled skills (should this be in CombatController.StartChanneling instead?)
+
+        //handle
+        var channelInfo = channeledSkillController.Contents.Template.ChannelInfo;
+
+        //direct modifiers applied to user during channel
+        var dmAppliedList = channelInfo.DirectModifiersApplied;
+        if (dmAppliedList.Count > 0)
         {
-            var parentCCC = parent.CombatController.CrowdControl;
-            //CC immunities checked live by CCController. we apply it, then CCController can decide whether to factor it in
-            CrowdControlTimer CCTimer;
-            if (parentCCC.TryAddCC(new CrowdControl(channelInfo.SelfInflictedCC, duration), out CCTimer, true))
+            //handle
+            var dmm = Origin.CombatController.DirectModifiers;
+
+            //interate all modifiers applied
+            foreach (var dm in dmAppliedList)
             {
-                onTimerCancel.AddListener(() => parentCCC.EndCC(CCTimer));
-            }
-            else
-            {
-                Debug.Log("CCC couldn't add CC.");
+                //handle to modifier timer
+                ModifierTimer dmTimer;
+                
+                //add a new direct modifer to parent actor, get a handle to the new timer
+                if (!dmm.TryAddTimer(dm, dm.Duration, out dmTimer))
+                {
+                    //If the direct modifier failed to be added, don't worry about it. Just jump to the next modifier in the list.
+                    continue;
+                }
+
+                //when this channel is canceled, end the direct modifier timer
+                onTimerCancel.AddListener(() => dmm.EndTimer(dmTimer));
+                
+                //when this channel is completed, end the direct modifier timer
+                onTimerComplete.AddListener(() => dmm.EndTimer(dmTimer));
             }
         }
 
-        MovingCancelsChannel = channelInfo.MovingCancelsChannel;
+        //effects applied to interrupting actor on interrupt (if there are any)
+        var interruptEffectList = channelInfo.InterruptEffects;
+        if (interruptEffectList.Count > 0)
+        {
+            //when interrupted, perform the OnChannelInterrupt method
+            onTimerInterrupt.AddListener(OnChannelInterrupt);
+        }
 
-        EnemiesCanInterrupt = channelInfo.EnemiesCanInterrupt;
+        //"on channel complete" phase effects
+        onTimerComplete.AddListener(OnChannelComplete);
 
-        SkillName = channeledSkill.Skill.ExternalName;
-
-        //when the channel is complete, apply any after-channel effects, then fire off the skill we're channeling
-        UnityAction channelCompleteAction =
-            () => { channeledSkill.ApplyAttackEffects(SkillPhaseTimingEnum.ON_CHANNEL_COMPLETE, new List<Actor>() { channeledSkill.ParentActor });
-                channeledSkill.Use();
-            };
-
-        //when the channel is interrupted, apply any on-channel-interrupt effects (optionally using the reference to the Actor that caused it)
-        UnityAction<Actor> channelInterruptAction =
-            (interruptor) => channeledSkill.ApplyAttackEffects(SkillPhaseTimingEnum.ON_CHANNEL_INTERRUPT, new List<Actor>() { interruptor });
-
-        onTimerComplete.AddListener(channelCompleteAction);
-        //onTimerCancel.AddListener(channelCancelAction);
-        onTimerInterrupt.AddListener(channelInterruptAction);
-
-        if (MovingCancelsChannel)
-            parent.onActorMove.AddListener(moveDistance => Cancel());
+        //if channel is canceled by moving, when parent actor moves, cancel this channel
+        if (channelInfo.IsCanceledByMoving)
+            origin.onActorMove.AddListener(moveDistance => Cancel());
     }
 
     protected override bool CheckInterruptIsValid(Actor interruptor = null)
     {
-        return EnemiesCanInterrupt;
+        //Interruption is valid if channeled skill is interruptable
+        return Payload.Contents.Template.ChannelInfo.IsInterruptable;
     }
-}
 
-public class SkillLockTimer : CombatTimer
-{
-    public SkillLockTimer(Actor parent, float duration)
-        :base(parent, duration)
+    protected void OnChannelInterrupt(Actor interruptor)
     {
-        
+        //get args for this moment
+        Skill.RecordedArgs recordedArgs = new Skill.RecordedArgs(Origin);
+        Vector2 originActorSpritePosition = Origin.GetSpritePosition();
+
+        //iterate all interrupt effects to apply
+        foreach (var effectInfo in Payload.Contents.Template.ChannelInfo.InterruptEffects)
+        {
+            //apply the effect to the interrupting actor (if valid)
+            effectInfo.Effect.ApplyIfValid(interruptor, Origin, originActorSpritePosition, effectInfo, recordedArgs);
+        }
+    }
+    protected void OnChannelComplete()
+    {
+        //things to do when the channel is completed
+
+        //perform all On Channel Complete phases
+        Payload.PerformPhases(Skill.PhaseTiming.ON_CHANNEL_COMPLETE);
+
+        //set actor skill lock for appropriate duration (dynamically adjusted after the jump)
+        Origin.CombatController.SetSkillLock(Payload.Contents.Template.SkillLockInfo.Duration);
     }
 }

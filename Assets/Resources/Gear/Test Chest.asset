@@ -11,8 +11,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0645569fe942bb548b4b67ccca0d229e, type: 3}
   m_Name: Test Chest
   m_EditorClassIdentifier: 
-  ExternalName: Test Chest
-  GearSlot: 3
+  NameExternal: 
   Icon: {fileID: 21300000, guid: 8c071e482e11d2e4590ffd3855fdf6c3, type: 3}
+  GearSlot: 3
   ImplicitMods:
   - {fileID: 11400000, guid: 02e781ff2e7234145866beff420dc015, type: 2}
+  Skill: {fileID: 11400000, guid: 5d9b98731fd52a34883b0edabbd30d0c, type: 2}

@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CombatController
+public class CombatController : IActorComponent
 {
     //actor handle
     public Actor ParentActor { get; private set; }
 
     //core subsystems
     public StatManager Stats { get; private set; }
-    public SkillManager Skills { get; private set; }
+    public Skill.Manager Skills { get; private set; }
     public GearManager Gear { get; private set; }
 
-    public CrowdControlManager CrowdControl { get; private set; }   //condition manager?
-    //conditions/modifiers
+    public CrowdControlManager CrowdControl { get; private set; }
+    public DirectModifierManager DirectModifiers { get; private set; }
+    public ActorAuraManager Auras { get; private set; }
+    public AutoSkillManager AutoSkills { get; private set; }
 
     //secondary subsystems
     public int Level { get; private set; }
@@ -28,16 +30,40 @@ public class CombatController
     {
         //called after the first Awake() calls. most of these need fully-initialized databases to not crash.
         Stats = new StatManager(ParentActor);
-        Skills = new SkillManager(ParentActor);
+
+        Skills = new Skill.Manager(ParentActor);
+        Skills.InitSlots();
+
         Gear = new GearManager(ParentActor);
+        Gear.InitSlots();
+
         CrowdControl = new CrowdControlManager(ParentActor);
+        DirectModifiers = new DirectModifierManager(ParentActor);
+        Auras = new ActorAuraManager(ParentActor, ParentActor.ActorAuraTransform);
+        AutoSkills = new AutoSkillManager(ParentActor, ParentActor.ActorAutoSkillTransform);
+
+        //when gear is changed, remake skills list (this will reset cooldowns)
+        Gear.onAfterSlotChanged.AddListener(() => Skills.UpdateSkills(Gear.AllEquipped));
+    }
+    public void CleanUpAllListeners()
+    {
+        Skills.CleanUpListeners();
+        Gear.CleanUpListeners();
+        CrowdControl.CleanUpListeners();
+        DirectModifiers.CleanUpListeners();
+
+        if (_skillLock != null)
+            _skillLock.CleanUpListeners();
+
+        if (_channeling != null)
+            _channeling.CleanUpListeners();
     }
 
     /*
      *      Skill-lock
      * 
      */
-    private SkillLockTimer _skillLock = null;
+    private CombatTimer _skillLock = null;
     public bool HasSkillLock
     {
         get
@@ -50,15 +76,36 @@ public class CombatController
             return false;
         }
     }
-    //returns data about the current skill lock timer, if there is one
-    public TimerInfo SkillLockInfo { get { return HasSkillLock ? new TimerInfo(_skillLock) : new TimerInfo(); } }
-
-    public bool SetSkillLock(SkillController skill)       //returns true if Skill-lock was engaged
+    public float SkillLockProgressNormalized
     {
-        var skillLockInfo = skill.Skill.SkillLockInfo;
-        float adjustedDuration = GetAdjustedSkillLockDuration(skillLockInfo.SkillLockDuration);
+        get
+        {
+            if (HasSkillLock)
+                return _skillLock.ProgressNormalized;
+            return 1;
+        }
+    }
+    public float SkillLockRemainingTime
+    {
+        get
+        {
+            if (HasSkillLock)
+                return _skillLock.RemainingTime;
+            return 0;
+        }
+    }
 
-        _skillLock = new SkillLockTimer(ParentActor, adjustedDuration);
+    public bool SetSkillLock(float duration)       //returns true if Skill-lock was engaged
+    {
+        float adjustedDuration = GetAdjustedSkillLockDuration(duration);
+
+        if (adjustedDuration > 0)
+        {
+            if (_skillLock != null)
+                _skillLock.CleanUpListeners();
+
+            _skillLock = new CombatTimer(ParentActor, adjustedDuration);
+        }
         return true;
     }
     public bool CancelSkillLock()       //returns true if Skill-lock was canceled
@@ -88,30 +135,57 @@ public class CombatController
             return false;
         }
     }
-    //returns data about the current channeling timer, if there is one
-    public ChannelingInfo ChannelingInfo { get { return IsChanneling ? new ChannelingInfo(_channeling) : new ChannelingInfo(); } }
-
-    public bool StartChanneling(SkillController channeledSkill)     //returns true if a new channel was started
+    public float ChannelingProgressNormalized
     {
+        get
+        {
+            if (IsChanneling)
+                return _channeling.ProgressNormalized;
+            return 1;
+        }
+    }
+    public float ChannelingRemainingTime
+    {
+        get
+        {
+            if (IsChanneling)
+                return _channeling.RemainingTime;
+            return 0;
+        }
+    }
+    public Skill.Controller ChanneledSkill
+    {
+        get
+        {
+            if (IsChanneling)
+                return _channeling.Payload;
+            return null;
+        }
+    }
+
+    public bool StartChanneling(Skill.Controller channeledController)     //returns true if a new channel was started
+    {
+        Skill.Template template = channeledController.Contents.Template;
+
+        //checks are protection from bogus channel requests
         if (IsChanneling)
             return false;
 
-        Skill skill = channeledSkill.Skill;
-
-        //checks are protection from bogus channel requests
-        if (!skill.IsChanneled)
+        if (!template.ChannelInfo.IsChanneled)
             return false;
 
-        float channelDuration = skill.ChannelingInfo.ChannelDuration;
-
-        if (channelDuration <= 0)
-            return false;
+        float channelDuration = template.ChannelInfo.Duration;
 
         float adjustedChannelDuration = GetAdjustedChannelDuration(channelDuration);
 
+        if (_channeling != null)
+            _channeling.CleanUpListeners();
+
         //start the channel
-        _channeling = new ChannelingTimer(ParentActor, adjustedChannelDuration, channeledSkill);
+        _channeling = new ChannelingTimer(ParentActor, adjustedChannelDuration, channeledController);
+        
         _channeling.onTimerCancel.AddListener(() => CancelSkillLock());
+
         return true;
     }
     public bool InterruptChanneling(bool bypassInterruptEffects = false, Actor interruptor = null)     //returns true if a channel was interrupted

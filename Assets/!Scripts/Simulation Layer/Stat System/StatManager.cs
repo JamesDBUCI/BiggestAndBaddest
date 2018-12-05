@@ -9,7 +9,6 @@ public class StatManager
 
     private List<StatController> _baseStats = new List<StatController>();
     private List<StatusFlag> _flags = new List<StatusFlag>();
-    private List<StatChange> _statChanges = new List<StatChange>();
 
     //ctor
     public StatManager()
@@ -67,7 +66,22 @@ public class StatManager
     }
     public float CalculateCurrentStatValue(StatTemplate stat)
     {
-        List<StatChange> changesForThisStat = _statChanges.Where(change => change.ChangeTemplate.AffectedStat == stat).ToList();
+        //core method
+
+        CombatController c = ParentActor.CombatController;
+
+        //gear stat changes
+        var allStatChanges = c.Gear.GetAllEnabledStatChanges();
+
+        //direct modifier stat changes
+        allStatChanges.AddRange(c.DirectModifiers.GetAllStatChanges());
+        
+        //aura stat changes
+        allStatChanges.AddRange(c.Auras.GetOverlappingAuras().SelectMany(i => i.Template.StatChanges));
+
+        //Debug.Log(allStatChanges.Count + " total stat changes.");
+
+        List<StatChange> changesForThisStat = allStatChanges.Where(change => change.ChangeTemplate.AffectedStat == stat).ToList();
 
         float calculatedValue = GameMath.CalculateStatWithChanges(GetBaseStatValue(stat), changesForThisStat);
 
@@ -103,36 +117,5 @@ public class StatManager
     public bool CheckFlag(StatusFlag newFlag)
     {
         return _flags.Contains(newFlag);
-    }
-
-    //stat change functions
-    public void AddStatChange(StatChange newChange)
-    {
-        _statChanges.Add(newChange);
-    }
-    public void AddStatChanges(List<StatChange> newChanges)
-    {
-        _statChanges.AddRange(newChanges);
-    }
-    public bool RemoveStatChange(StatChange change)
-    {
-        return _statChanges.Remove(change);
-    }
-    public bool RemoveStatChanges(List<StatChange> changes)
-    {
-        bool allWereRemoved = true;
-        foreach (StatChange change in changes)
-        {
-            allWereRemoved = allWereRemoved && _statChanges.Remove(change);
-        }
-        return allWereRemoved;
-    }
-    protected bool HasStatChange(StatChange change)
-    {
-        return _statChanges.Contains(change);
-    }
-    public int CountStatChanges()
-    {
-        return _statChanges.Count;
     }
 }

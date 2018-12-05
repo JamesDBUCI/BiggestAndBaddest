@@ -16,8 +16,7 @@ public struct StatScaler
         Scale = scale;
     }
 }
-
-//[CustomPropertyDrawer(typeof(StatScaler))]
+[CustomPropertyDrawer(typeof(StatScaler))]
 public class PD_StatScaler : PropertyDrawer
 {
     SerializedProperty statProp;
