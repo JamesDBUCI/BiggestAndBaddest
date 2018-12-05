@@ -3,29 +3,61 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIGearSlot : MonoBehaviour
+public abstract class UISlot : MonoBehaviour
 {
-    public GearSlotController AssignedSlot { get; private set; }
+    public AbstractSlotController AssignedSlot { get; protected set; }
 
+    public void AssignSlot(AbstractSlotController slot)
+    {
+        if (slot == null)
+            return;
+
+        AssignedSlot = slot;
+        slot.onChangeEnabled.AddListener(UpdateState);
+
+        UpdateState();
+    }
+    public abstract void UpdateState();
+}
+public abstract class UISlot<SlotType, ContentType> : UISlot where SlotType : AbstractSlotController<ContentType>
+{
+    public Image ContentIcon;
+
+    public override void UpdateState()
+    {
+        var castSlot = (SlotType)AssignedSlot;
+
+        if (castSlot.IsEmpty)
+        {
+            ContentIcon.enabled = false;
+        }
+        else
+        {
+            ContentIcon.sprite = GetContentIcon();
+            ContentIcon.enabled = true;
+        }
+
+        OnUpdateState();
+    }
+    protected virtual Sprite GetContentIcon() { return null; }
+    protected virtual void OnUpdateState() { }
+}
+public class UIGearSlot : UISlot<GearSlotController, GearInstance>
+{
     public Image EmptyIcon;
-    public Image GearIcon;
     public Image DisabledGearSlotOverlay;
 
-    public void AssignSlot(GearSlotController slot)
+    protected override Sprite GetContentIcon()
     {
-        AssignedSlot = slot;
-        slot.onSlotChanged.AddListener(UpdateState);
-
-        UpdateState();        
+        var castSlot = (GearSlotController)AssignedSlot;
+        return castSlot.Contents.Template.Icon;
     }
-    public void UpdateState()
+    protected override void OnUpdateState()
     {
-        if (AssignedSlot.HasItem)
-            GearIcon.sprite = AssignedSlot.Item.Template.Icon;
+        Debug.Log("OnUpdateState()");
+        var castSlot = (GearSlotController)AssignedSlot;
 
-        GearIcon.enabled = AssignedSlot.HasItem;
-        EmptyIcon.enabled = !AssignedSlot.HasItem;
-
+        EmptyIcon.enabled = castSlot.IsEmpty;
         DisabledGearSlotOverlay.enabled = !AssignedSlot.Enabled;
     }
 }

@@ -6,8 +6,8 @@ using UnityEditor;
 [CreateAssetMenu(menuName = "Mods/Gear Mod")]
 public class GearModTemplate : ModTemplate
 {
-    public List<StatChangeTemplate> StatChanges;
-    public List<StatusFlag> StatusFlags;
+    public List<StatChangeTemplate> StatChanges = new List<StatChangeTemplate>();
+    public List<StatusFlag> StatusFlags = new List<StatusFlag>();
 }
 
 [CustomEditor(typeof(GearModTemplate))]
