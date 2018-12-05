@@ -14,11 +14,15 @@ public class Game : MonoBehaviour
 
     public Actor PlayerPrefab;
     public ActorClass PlayerClass;
-    public List<Skill> TestPlayerSkills;
+    //public List<Skill> TestPlayerSkills;
     public List<GearTemplate> TestPlayerGear;
     public Actor Player { get; private set; }
 
     public Boundary PlayableArea;
+    public ProjectileController ProjectilePrefab;
+    public AuraController AuraPrefab;
+    public ZoneController ZonePrefab;
+    public AutoSkillController AutoSkillPrefab;
 
     private void OnEnable()
     {
@@ -29,12 +33,13 @@ public class Game : MonoBehaviour
         {
             return;
         }
+        SkillButtonManager.InitKeybindings();
     }
     // Use this for initialization
     void Start ()
     {
         TestSpawnPlayerCharacter();
-        TestSpawnBoss();
+        TestBoss = SpawnActor(TestBossPrefab, PlayerClass, ActorFaction.ENEMY, Vector2.zero);
         UI.TestSetup();
 
         //ModServices.TestModSystem(TestBoss);
@@ -42,38 +47,21 @@ public class Game : MonoBehaviour
     }
     public void TestSpawnPlayerCharacter()
     {
-        Actor playerActor = SpawnActor(PlayerPrefab, PlayerClass, new Vector2(-2, -2));
-        for (int i = 0; i < TestPlayerSkills.Count; i++)
-        {
-            playerActor.CombatController.Skills.SetSkillSlot(i, TestPlayerSkills[i]);
-        }
-        //playerActor.CombatController.CrowdControl.AddCC("crunk", 200);
+        Actor playerActor = SpawnActor(PlayerPrefab, PlayerClass, ActorFaction.ALLY, new Vector2(-2, -2));
+
+        //playerActor.CombatController.CrowdControl.AddTimer("crunk", 200);
+
         for (int i = 0; i < TestPlayerGear.Count; i++)
         {
-            playerActor.CombatController.Gear.AddGear(new GearController(TestPlayerGear[i]));
+            playerActor.CombatController.Gear.AddContents(TestPlayerGear[i].GearSlot, new GearInstance(TestPlayerGear[i]));
         }
-        playerActor.CombatController.Gear.SetGearEnabled(GearSlotEnum.CHEST, false);
+        //playerActor.CombatController.Gear.SetSlotEnabled(GearSlotEnum.CHEST, false);
 
+        //set camera to follow player
+        Camera.main.transform.SetParent(playerActor.transform, false);
         Player = playerActor;
     }
-    //spawn boss with player's skills
-    public void TestSpawnBoss()
-    {
-        Actor bossActor = SpawnActor(TestBossPrefab, PlayerClass, Vector2.zero);
-        for (int i = 0; i < TestPlayerSkills.Count; i++)
-        {
-            bossActor.CombatController.Skills.SetSkillSlot(i, TestPlayerSkills[i]);
-        }
-        //playerActor.CombatController.CrowdControl.AddCC("crunk", 200);
-        for (int i = 0; i < TestPlayerGear.Count; i++)
-        {
-            bossActor.CombatController.Gear.AddGear(new GearController(TestPlayerGear[i]));
-        }
-        bossActor.CombatController.Gear.SetGearEnabled(GearSlotEnum.CHEST, false);
-
-        TestBoss = bossActor;
-    }
-    public Actor SpawnActor(Actor prefab, ActorClass combatClass, Vector2 location)
+    public Actor SpawnActor(Actor prefab, ActorClass combatClass, ActorFaction faction, Vector2 location)
     {
         if (prefab == null)
         {
@@ -81,10 +69,41 @@ public class Game : MonoBehaviour
             return null;
         }
 
+        Debug.Log("Spawning actor prefab");
         Actor actor = Instantiate(prefab, location, Quaternion.identity);
 
+        Debug.Log("Initializing combat controller");
         actor.CombatController.Init();
+
         actor.CombatController.ChangeClass(combatClass, true);
+        actor.Faction = faction;
         return actor;
+    }
+    public void LogPlayerInfo()
+    {
+        var allStats = Player.CombatController.Stats.CalculateCurrentStatValues();
+        Debug.Log(string.Format("Logging player's current stats."));
+        foreach (var sc in allStats)
+        {
+            Debug.Log(string.Format("{0}: {1}", sc.Template.ExternalName, sc.Value));
+        }
+        var allGear = Player.CombatController.Gear.GetAllSlotControllers();
+        Debug.Log(string.Format("Logging player's current gear."));
+        foreach (var gsc in allGear)
+        {
+            string itemName = gsc.Value.IsEmpty ? "Empty" : gsc.Value.Contents.Template.NameExternal;
+            Debug.Log(string.Format("{0}: {1}", gsc.Key, itemName));
+        }
+        var allSkills = Player.CombatController.Skills.GetAllSlotControllers();
+        Debug.Log(string.Format("Logging player's current skills."));
+        foreach (var kvp in allSkills)
+        {
+            string skillName = kvp.Value.IsEmpty ? "Empty" : kvp.Value.Contents.Template.NameExternal;
+            Debug.Log(string.Format("{0}: {1}", kvp.Key, skillName));
+        }
+    }
+    public void DisablePlayerGear()
+    {
+        Player.CombatController.Gear.SetAllSlotsEnabled(false);
     }
 }

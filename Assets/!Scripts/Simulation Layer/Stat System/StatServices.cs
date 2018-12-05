@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+public enum SkillPhaseTimingEnum
+{
+    ON_USE, ON_CHANNEL_COMPLETE, MAIN_HIT
+}
 public static class StatServices
 {
     public static StatController CreateStat(StatTemplate template)

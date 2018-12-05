@@ -22,6 +22,9 @@ public class ActorClass : ScriptableObject
         new ActorClassStatTemplate(Const.PHYSICAL_RESIST_STAT, "Armor"),
         new ActorClassStatTemplate(Const.MAGIC_RESIST_STAT, "Spell Resistance"),
     };
+
+    //modifier immunities
+    public List<DirectModifierTemplate> ModifierImmunity = new List<DirectModifierTemplate>();
 }
 
 [System.Serializable]
@@ -46,11 +49,13 @@ public class Insp_ActorClass : Editor
 {
     SerializedProperty nameProp;
     SerializedProperty statListProp;
+    SerializedProperty modifierProp;
 
     private void OnEnable()
     {
         nameProp = serializedObject.FindProperty("ExternalName");
         statListProp = serializedObject.FindProperty("Stats");
+        modifierProp = serializedObject.FindProperty("ModifierImmunity");
     }
     public override void OnInspectorGUI()
     {
@@ -63,6 +68,7 @@ public class Insp_ActorClass : Editor
         {
             EditorGUILayout.PropertyField(statProp);
         }
+        KEditorTools.ListMini(modifierProp, new GUIContent("Modifier Immunity"), true);
 
         serializedObject.ApplyModifiedProperties();
     }

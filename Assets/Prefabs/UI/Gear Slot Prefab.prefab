@@ -145,8 +145,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be9539ba1824b594d94f1af460052aae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ContentIcon: {fileID: 114040104288853152}
   EmptyIcon: {fileID: 114073181548939496}
-  GearIcon: {fileID: 114040104288853152}
   DisabledGearSlotOverlay: {fileID: 114211947556470074}
 --- !u!114 &114211947556470074
 MonoBehaviour:

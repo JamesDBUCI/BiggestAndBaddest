@@ -24,7 +24,7 @@ public class UIManager : MonoBehaviour
         else
             Destroy(gameObject);
     }
-    public void NewSkillSlot(string buttonName, SkillController assignedController)
+    public void NewSkillSlot(string buttonName, Skill.Controller assignedController)
     {
         UISkillSlot newSlot = Instantiate(SkillSlotPrefab, SkillSlotPanel);
         newSlot.SetButton(buttonName);
@@ -37,24 +37,29 @@ public class UIManager : MonoBehaviour
         UIGearSlot uiSlot = Instantiate(GearSlotPrefab, GearSlotPanel);
         //remember: set blank gear slot icon from gear slot type
         uiSlot.AssignSlot(gearSlot);
-        gearSlot.onSlotChanged.AddListener(uiSlot.UpdateState);
+        gearSlot.onChangeEnabled.AddListener(uiSlot.UpdateState);
+
+        _activeGearSlots.Add(uiSlot);
     }
 
     public void TestSetup()
     {
-        string[] dummyInputButtonNames = new string[] { "Left-click", "Right-click", "1", "2", "3", "4", "5" };
         if (Game.Self.Player != null)
         {
-            var playerSkillsList = Game.Self.Player.CombatController.Skills.GetAllSkillsAndSlotIndexes();
+            var playerSkillsList = Game.Self.Player.CombatController.Skills.GetAllSlotControllers();
             foreach (var playerSkill in playerSkillsList)
             {
-                NewSkillSlot(dummyInputButtonNames[playerSkill.Value1], playerSkill.Value2);
+                if (playerSkill.Value.IsEmpty)  //if the skill controller does not have a skill instance
+                    continue;
+
+                string buttonName = SkillButtonManager.Keys[SkillButtonManager.GetButton(playerSkill.Key)];
+                NewSkillSlot(buttonName, playerSkill.Value);
             }
 
             SkillLockBar.AssignActor(Game.Self.Player);
             ChannelBar.AssignActor(Game.Self.Player);
 
-            var playerGearList = Game.Self.Player.CombatController.Gear.GetAllGearSlotControllers();
+            var playerGearList = Game.Self.Player.CombatController.Gear.GetAllSlotControllers();
             foreach (var kvp in playerGearList)
             {
                 NewGearSlot(kvp.Value);

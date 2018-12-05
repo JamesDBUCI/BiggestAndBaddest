@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a457cc3f56b33f8488116ab94f1a4765, type: 3}
+  m_Name: Test Bonus Damage
+  m_EditorClassIdentifier: 
+  NameExternal: Tester's
+  AffixSlot: 0
+  Hidden: 0
+  ModIsDisabled: 0
+  StatChanges:
+  - AffectedStat: {fileID: 11400000, guid: 09dfea1007703ba4fb7decbfbf084639, type: 2}
+    ChangeType: 0
+    MinValue: 15
+    MaxValue: 25
+    Precision: 1
+  - AffectedStat: {fileID: 11400000, guid: c0b49effc809b0840affe104392c91ea, type: 2}
+    ChangeType: 1
+    MinValue: 4
+    MaxValue: 6
+    Precision: 0.1
+  StatusFlags: []
