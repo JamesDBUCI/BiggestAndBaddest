@@ -3,48 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class UISlot : MonoBehaviour
-{
-    public AbstractSlotController AssignedSlot { get; protected set; }
 
-    public void AssignSlot(AbstractSlotController slot)
-    {
-        if (slot == null)
-            return;
 
-        AssignedSlot = slot;
-        slot.onChangeEnabled.AddListener(UpdateState);
-
-        UpdateState();
-    }
-    public abstract void UpdateState();
-}
-public abstract class UISlot<SlotType, ContentType> : UISlot where SlotType : AbstractSlotController<ContentType>
-{
-    public Image ContentIcon;
-
-    public override void UpdateState()
-    {
-        var castSlot = (SlotType)AssignedSlot;
-
-        if (castSlot.IsEmpty)
-        {
-            ContentIcon.enabled = false;
-        }
-        else
-        {
-            ContentIcon.sprite = GetContentIcon();
-            ContentIcon.enabled = true;
-        }
-
-        OnUpdateState();
-    }
-    protected virtual Sprite GetContentIcon() { return null; }
-    protected virtual void OnUpdateState() { }
-}
+/// <summary>
+/// Component that controls a UI representation of a Gear slot for an Actor.
+/// </summary>
 public class UIGearSlot : UISlot<GearSlotController, GearInstance>
 {
+    /// <summary>
+    /// UI Image component representing an empty Gear slot.
+    /// </summary>
     public Image EmptyIcon;
+
+    /// <summary>
+    /// UI Image component representing a Gear slot that has been disabled.
+    /// </summary>
     public Image DisabledGearSlotOverlay;
 
     protected override Sprite GetContentIcon()
@@ -54,7 +27,7 @@ public class UIGearSlot : UISlot<GearSlotController, GearInstance>
     }
     protected override void OnUpdateState()
     {
-        Debug.Log("OnUpdateState()");
+        //Debug.Log("OnUpdateState()");
         var castSlot = (GearSlotController)AssignedSlot;
 
         EmptyIcon.enabled = castSlot.IsEmpty;

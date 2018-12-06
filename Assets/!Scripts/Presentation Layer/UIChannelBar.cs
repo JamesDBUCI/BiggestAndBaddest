@@ -1,13 +1,17 @@
 ﻿using UnityEngine.UI;
 
+/// <summary>
+/// Component that controls a UI representation of a channeling timer for a Skill.
+/// </summary>
 public class UIChannelBar : UIActorTimerBar
 {
+    /// <summary>
+    /// UI Text component for displaying the name of the channeled Skill.
+    /// </summary>
     public Text SkillNameText;
 
-    protected override bool UpdateTimerInfo()   //return false if data was unavailable (no actor, no channeling)
+    protected override bool UpdateTimerInfo()
     {
-        //get and set this UI timer's data for this frame
-
         if (AssignedActor == null || !AssignedActor.CombatController.IsChanneling)
             return false;
 

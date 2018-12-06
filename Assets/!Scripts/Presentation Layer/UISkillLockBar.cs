@@ -1,6 +1,9 @@
 ﻿using UnityEngine.UI;
 using UnityEngine;
 
+/// <summary>
+/// Component that controls a UI representation of a Skill-lock timer for a Skill.
+/// </summary>
 public class UISkillLockBar : UIActorTimerBar
 {
     protected override bool UpdateTimerInfo()

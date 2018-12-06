@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//Class may need a rewrite.
+
+/// <summary>
+/// Component that controls a UI representation of a Skill slot for an Actor.
+/// </summary>
 public class UISkillSlot : MonoBehaviour
 {
     Skill.Controller _representedController = null;
