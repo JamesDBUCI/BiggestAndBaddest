@@ -69,7 +69,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpriteRenderer: {fileID: 212354477039135056}
-  Collider: {fileID: 0}
+  Collider: {fileID: 58449578282113416}
 --- !u!212 &212354477039135056
 SpriteRenderer:
   m_ObjectHideFlags: 1
