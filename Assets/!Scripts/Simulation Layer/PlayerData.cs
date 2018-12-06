@@ -2,9 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerData : MonoBehaviour {
+
+[System.Serializable]
+public class PlayerData {
     //HUGE WARNING: This class needs to be updated as needed in order to track everything that needs to be tracked for the SaveData
 
     //Temporary value to test save data, delete later
-    public int[] Transform;
+    public float[] position;
+
+    public PlayerData(Actor player)
+    {
+
+    }
 }
