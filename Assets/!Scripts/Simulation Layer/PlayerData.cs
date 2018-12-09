@@ -9,9 +9,14 @@ public class PlayerData {
 
     //Temporary value to test save data, delete later
     public float[] position;
+    
 
     public PlayerData(Actor player)
     {
-
+        List<GearInstance> gearInstances = player.CombatController.Gear.AllEquipped;
+        foreach(GearInstance gear in gearInstances)
+        {
+            
+        }
     }
 }
