@@ -16,7 +16,11 @@ public class PlayerData {
         List<GearInstance> gearInstances = player.CombatController.Gear.AllEquipped;
         foreach(GearInstance gear in gearInstances)
         {
-            
+            List<GearModTemplate> mods = gear.Template.ImplicitMods;
+            foreach(GearModTemplate mod in mods)
+            {
+                
+            }
         }
     }
 }
