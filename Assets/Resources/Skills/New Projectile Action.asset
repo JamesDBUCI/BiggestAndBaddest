@@ -8,10 +8,50 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 6809feb7fdd72b241b1bdbc7027c5de1, type: 3}
   m_Name: New Projectile Action
   m_EditorClassIdentifier: Assembly-CSharp:Skill:ProjectileAction
-  CollidingSprite: {fileID: 114515599395248680, guid: 7aaea1154a426bd4b91463cfc9a1a952,
-    type: 2}
-  Speed: 5
-  SizeMultiplier: 1
+  NameExternal: 
+  Icon: {fileID: 0}
+  Description: 
+  Domain: 0
+  Tags: 
+  InstantSpeedInfo:
+    HasInstantSpeed: 0
+    CanUseWhileChanneling: 0
+    CancelsChanneling: 0
+  ChannelInfo:
+    IsChanneled: 0
+    Duration: 0
+    IsInterruptable: 0
+    IsCanceledByMoving: 0
+    InterruptEffects: []
+  SkillLockInfo:
+    Duration: 0
+  CooldownInfo:
+    HasCooldown: 0
+    Duration: 0
+    MultiplierIfChannelInterrupted: 0
+  Phases:
+  - Timing: 0
+    Action: {fileID: 0}
+    ProjectileInfo:
+      Range: 0
+      PiercesEnemies: 0
+    AoeInfo:
+      MaxDistanceFromUser:
+        Value: 0
+        Enabled: 0
+      RotationOffset: 0
+      RotationIsGlobal: 0
+      HideAoeIndicator: 0
+      IndicatorDurationMultipler: 0
+    ZoneInfo:
+      MaxDistanceFromUser:
+        Value: 0
+        Enabled: 0
+      Lifetime: 0
+      Auras: []
+    FieldTriggerInfo:
+      TriggerName: 
+    Effects: []

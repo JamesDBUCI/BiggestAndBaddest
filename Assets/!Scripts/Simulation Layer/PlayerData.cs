@@ -9,18 +9,29 @@ public class PlayerData {
 
     //Temporary value to test save data, delete later
     public float[] position;
-    
+    public string[] gearInfo;
+    public int[] modNumber;
 
     public PlayerData(Actor player)
     {
+        List<string> gearAndModsList = new List<string>();
         List<GearInstance> gearInstances = player.CombatController.Gear.AllEquipped;
-        foreach(GearInstance gear in gearInstances)
+        modNumber = new int[gearInstances.Count];
+        for(int i = 0; i < gearInstances.Count; i ++)
         {
-            List<GearModTemplate> mods = gear.Template.ImplicitMods;
+            modNumber[i] = 0;
+            gearAndModsList.Add(gearInstances[i].Template.name);
+            List<GearModTemplate> mods = gearInstances[i].Template.ImplicitMods;
             foreach(GearModTemplate mod in mods)
             {
-                
-            }
+                gearAndModsList.Add(mod.name);
+                modNumber[i]++;
+            }           
         }
+        gearInfo = gearAndModsList.ToArray();
+        position = new float[3];
+        position[0] = player.transform.localPosition.x;
+        position[1] = player.transform.localPosition.y;
+        position[2] = player.transform.localPosition.z;
     }
 }

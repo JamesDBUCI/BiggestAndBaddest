@@ -106,4 +106,18 @@ public class Game : MonoBehaviour
     {
         Player.CombatController.Gear.SetAllSlotsEnabled(false);
     }
+    public void SavePlayerData()
+    {
+        SaveSystem.SavePlayer(Player);
+    }
+    public void LoadPlayerData()
+    {
+        PlayerData data = SaveSystem.LoadPlayer();
+        Player.transform.position = new Vector3(data.position[0], data.position[1], data.position[2]);
+        for(int i = 0; i < data.gearInfo.GetLength(1); i++)
+        {
+            Debug.Log(data.gearInfo[i]);
+            
+        }
+    }
 }
