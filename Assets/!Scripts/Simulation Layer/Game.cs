@@ -114,10 +114,31 @@ public class Game : MonoBehaviour
     {
         PlayerData data = SaveSystem.LoadPlayer();
         Player.transform.position = new Vector3(data.position[0], data.position[1], data.position[2]);
+        List<GearInstance> gearInstances = new List<GearInstance>();
+        GearTemplate currentTemplate = null;
+        List<GearModController> currentMods = null;
         for(int i = 0; i < data.gearInfo.GetLength(1); i++)
         {
+            GearTemplate workingTemp = null;
             Debug.Log(data.gearInfo[i]);
-            
+            GameDatabase.Gear.TryFind(data.gearInfo[i], out workingTemp);
+            if(workingTemp == null)
+            {
+                //its probably a mod
+                //GameDatabase.Mods.TryFind(data.gearInfo[i],)
+            }
+            else
+            {
+                workingTemp = currentTemplate;
+                if(currentTemplate != null)
+                {
+
+                }
+
+            }
+
+
+
         }
     }
 }
