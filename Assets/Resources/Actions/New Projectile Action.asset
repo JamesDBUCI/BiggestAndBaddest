@@ -13,5 +13,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp:Skill:ProjectileAction
   CollidingSprite: {fileID: 114515599395248680, guid: 7aaea1154a426bd4b91463cfc9a1a952,
     type: 2}
-  Speed: 5
+  Speed: 3
   SizeMultiplier: 1

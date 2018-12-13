@@ -11,14 +11,16 @@ public class UIGlobalCalloutTimer : UIActorTimerBar {
     protected override bool UpdateTimerInfo()   //return false if data was unavailable (no actor, no channeling)
     {
         //get and set this UI timer's data for this frame
+        Debug.Log(AssignedActor.CombatController.IsChanneling);
+        AttackManager atkMngr = AssignedActor.GetComponent<AttackManager>();
 
-        if (AssignedActor == null || !AssignedActor.CombatController.IsChanneling)
+        if (AssignedActor == null || !AssignedActor.CombatController.IsChanneling || atkMngr == null || !atkMngr.IsPreparing)
             return false;
 
         var comCon = AssignedActor.CombatController;
 
         _progressNormalized = comCon.ChannelingProgressNormalized;
-        _remainingTime = comCon.ChannelingRemainingTime;
+        _remainingTime = comCon.ChannelingRemainingTime + atkMngr.SkillOffsetTime;
 
         return true;
     }

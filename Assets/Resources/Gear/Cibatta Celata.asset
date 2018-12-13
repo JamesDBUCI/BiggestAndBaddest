@@ -16,4 +16,4 @@ MonoBehaviour:
   GearSlot: 2
   ImplicitMods:
   - {fileID: 11400000, guid: 02e781ff2e7234145866beff420dc015, type: 2}
-  Skill: {fileID: 11400000, guid: 5d9b98731fd52a34883b0edabbd30d0c, type: 2}
+  Skill: {fileID: 11400000, guid: be87e65500d379a46a4d314b98f47ca6, type: 2}

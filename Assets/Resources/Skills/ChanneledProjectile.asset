@@ -9,34 +9,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6809feb7fdd72b241b1bdbc7027c5de1, type: 3}
-  m_Name: Test Skill
-  m_EditorClassIdentifier: 
-  NameExternal: Test
-  Icon: {fileID: 21300000, guid: 0420c6e0626efe04588f7f1ffd871047, type: 3}
+  m_Name: ChanneledProjectile
+  m_EditorClassIdentifier: Assembly-CSharp:Skill:ProjectileAction
+  NameExternal: Slow Bullet of DOOM
+  Icon: {fileID: 21300000, guid: db7e962ae76c89f4db3f59cdd64edf79, type: 3}
   Description: 
   Domain: 0
-  Tags: 
+  Tags: 00000000
   InstantSpeedInfo:
     HasInstantSpeed: 0
     CanUseWhileChanneling: 0
     CancelsChanneling: 0
   ChannelInfo:
-    IsChanneled: 0
-    Duration: 0
-    IsInterruptable: 0
+    IsChanneled: 1
+    Duration: 3
+    IsInterruptable: 1
     IsCanceledByMoving: 0
     InterruptEffects: []
   SkillLockInfo:
-    Duration: 3
-  CooldownInfo:
-    HasCooldown: 0
     Duration: 0
-    MultiplierIfChannelInterrupted: 0
+  CooldownInfo:
+    HasCooldown: 1
+    Duration: 1
+    MultiplierIfChannelInterrupted: 2
   Phases:
-  - Timing: 0
+  - Timing: 1
     Action: {fileID: 11400000, guid: cdbce4e02793a944cbc9443e4cd3a63b, type: 2}
     ProjectileInfo:
-      Range: 5
+      Range: 9
       PiercesEnemies: 0
     AoeInfo:
       MaxDistanceFromUser:
@@ -55,15 +55,15 @@ MonoBehaviour:
     FieldTriggerInfo:
       TriggerName: 
     Effects:
-    - Effect: {fileID: 0}
+    - Effect: {fileID: 11400000, guid: 7485cc5c4667acf4c8d2d40acd380384, type: 2}
       AffectedActors: 02000000
       Scaling:
-      - Stat: {fileID: 11400000, guid: c0b49effc809b0840affe104392c91ea, type: 2}
-        Scale: 100
+      - Stat: {fileID: 11400000, guid: 09dfea1007703ba4fb7decbfbf084639, type: 2}
+        Scale: 0
       Potency:
       - CoreDamageType: 0
         SecondaryTypes: []
-        Value: 50
+        Value: 0
       ReciprocalPotencyScale: 0
-      MovementForceMultiplier: 0
+      MovementForceMultiplier: -1
       InterruptsEnemyChannel: 0
