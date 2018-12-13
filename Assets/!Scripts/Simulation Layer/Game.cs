@@ -39,11 +39,23 @@ public class Game : MonoBehaviour
     void Start ()
     {
         TestSpawnPlayerCharacter();
-        TestBoss = SpawnActor(TestBossPrefab, PlayerClass, ActorFaction.ENEMY, Vector2.zero);
+        TestSpawnBoss();
         UI.TestSetup();
 
         //ModServices.TestModSystem(TestBoss);
         //StatServices.TestStatSystem(TestBoss);
+    }
+    public void TestSpawnBoss()
+    {
+        Actor bossActor = SpawnActor(TestBossPrefab, PlayerClass, ActorFaction.ENEMY, Vector2.zero);
+
+        //playerActor.CombatController.CrowdControl.AddTimer("crunk", 200);
+
+        for (int i = 0; i < TestPlayerGear.Count; i++)
+        {
+            bossActor.CombatController.Gear.AddContents(TestPlayerGear[i].GearSlot, new GearInstance(TestPlayerGear[i]));
+        }
+        TestBoss = bossActor;
     }
     public void TestSpawnPlayerCharacter()
     {
