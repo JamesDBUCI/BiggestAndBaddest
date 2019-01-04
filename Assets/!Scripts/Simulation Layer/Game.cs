@@ -113,11 +113,12 @@ public class Game : MonoBehaviour
     public void LoadPlayerData()
     {
         PlayerData data = SaveSystem.LoadPlayer();
-        Player.transform.position = new Vector3(data.position[0], data.position[1], data.position[2]);
-        List<GearInstance> gearInstances = new List<GearInstance>();
+        Actor playerActor = SpawnActor(PlayerPrefab, PlayerClass, ActorFaction.ALLY, new Vector2(-2, -2));
+        playerActor.transform.position = new Vector3(data.position[0], data.position[1], data.position[2]);
+        List<GearTemplate> gearTemplates = new List<GearTemplate>();
         GearTemplate currentTemplate = null;
-        List<GearModController> currentMods = null;
-        for(int i = 0; i < data.gearInfo.GetLength(1); i++)
+        List<GearModTemplate> currentMods = new List<GearModTemplate>();
+        for(int i = 0; i < data.gearInfo.Length; i++)
         {
             GearTemplate workingTemp = null;
             Debug.Log(data.gearInfo[i]);
@@ -125,20 +126,34 @@ public class Game : MonoBehaviour
             if(workingTemp == null)
             {
                 //its probably a mod
-                //GameDatabase.Mods.TryFind(data.gearInfo[i],)
+                ModTemplate mod = null;
+                GameDatabase.Mods.TryFind(data.gearInfo[i], out mod);
+                if (mod)
+                {
+                    currentMods.Add((GearModTemplate)mod);
+                }
             }
             else
             {
                 workingTemp = currentTemplate;
                 if(currentTemplate != null)
                 {
-
+                    currentTemplate.ImplicitMods = currentMods;
+                    gearTemplates.Add(currentTemplate);
                 }
-
-            }
-
-
-
+            }          
         }
+        for (int i = 0; i < gearTemplates.Count; i++)
+        {
+            playerActor.CombatController.Gear.AddContents(gearTemplates[i].GearSlot, new GearInstance(gearTemplates[i]));
+        }
+        Camera.main.transform.SetParent(playerActor.transform, false);
+        if (Player != null)
+        {
+            Destroy(Player.GetComponent<PlayerMover>());
+            Destroy(Player.GetComponent<PlayerShooter>());
+            Destroy(Player.gameObject);
+        }
+        Player = playerActor;
     }
 }
