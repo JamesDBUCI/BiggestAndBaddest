@@ -8,6 +8,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f0dde7323aae1b4c965fba0f541130b, type: 3}
-  m_Name: New Projectile Action
+  m_Script: {fileID: 0}
+  m_Name: Projectile Action
   m_EditorClassIdentifier: Assembly-CSharp:Skill:ProjectileAction
+  CollidingSprite: {fileID: 0}
+  Speed: 0
+  SizeMultiplier: 0
