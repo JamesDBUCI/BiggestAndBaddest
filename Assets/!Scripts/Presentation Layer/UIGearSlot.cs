@@ -54,7 +54,6 @@ public class UIGearSlot : UISlot<GearSlotController, GearInstance>
     }
     protected override void OnUpdateState()
     {
-        Debug.Log("OnUpdateState()");
         var castSlot = (GearSlotController)AssignedSlot;
 
         EmptyIcon.enabled = castSlot.IsEmpty;
